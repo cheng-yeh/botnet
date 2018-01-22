@@ -67,11 +67,25 @@ public:
 	
 	// s1 for the number of samples from the k interaction graphs
 	// s2 for the number of samples from each interaction graph
-	void sampling(const int s1 = 20,const int s2 = 20);
+	bool selectModel(const int s1 = 20,const int s2 = 40);
+	
+	// public get function
+	size_t getWindowNum() const{ return _timeList.size(); }
+	size_t getInterGraphSize(const size_t& graph) const{ return _interGraph[graph] -> innerSize(); }
+	
 	
 private:
 	// private get function
 	int getDegree(const size_t graph, const size_t node) const;
+	
+	// models
+	double log_ER(const vector<double>& degree, const double& lambda) const;
+	double log_PA_plus(const vector<double>& degree, const double& gamma) const;
+	double log_PA(const vector<double>& degree, const double& gamma, const double& theta) const;
+	
+	// max parameter
+	double lambda_hat(const vector<double>& degree) const;
+	double gamma_hat(const vector<double>& degree);
 	
 	
 private:

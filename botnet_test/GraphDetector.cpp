@@ -1,12 +1,16 @@
 #include <map>
+#include <math.h>
+#include <boost/math/special_functions/zeta.hpp>
 
 #include "GraphDetector.h"
 //#include "util.h"
 
 using namespace std;
 using Eigen::MatrixXd;
+using namespace boost::math;
 
 extern size_t window_num;
+extern RandomNumGen  rnGen;
 
 TimeKey::TimeKey(string time)
 {
@@ -70,7 +74,6 @@ GraphDetector::init(const vector< vector<string> >& rawdata)
 			if(node.insert( make_pair(_timeList[i][j][3], count) ).second)++count;
 			if(node.insert( make_pair(_timeList[i][j][6], count) ).second)++count;
 		}
-		cout << "node.size() = " << node.size() << endl;
 		if(count != node.size())cout << "Error!!!!!!!!! count != node.size()\n";
 		cout << "count = " << count << endl;
 		MatrixXd* ptr = new MatrixXd(node.size(), node.size());
@@ -87,22 +90,110 @@ GraphDetector::init(const vector< vector<string> >& rawdata)
 	cout << "Init successfully!\n";
 }
 
-void
-GraphDetector::sampling(const int s1,const int s2)
+
+
+bool
+GraphDetector::selectModel(const int s1,const int s2)
 {
+	// sampling
+	vector<size_t> sample;
+	//vector< vector<double> > chosen;
+	vector<double> chosen;
+	sampling(sample, s1, getWindowNum());
 	
+	for(size_t i = 0; i < s1; ++i){
+		//chosen_graph.push_back(rnGen(_interGraph.size()));
+		size_t graphSize = getInterGraphSize( sample[i] );
+		VectorXd v( graphSize );
+		for(size_t j = 0; j < v.size(); ++j)
+			v(j) = 1;
+		//vector<double> distribution;
+		vector<size_t> sample2;
+		sampling(sample2, s2, graphSize);
+		for(size_t j = 0; j < s2; ++j){
+			double v1 = (*_interGraph[sample[i]]).row(sample2[j]) * v;
+			double v2 = (*_interGraph[sample[i]]).col(sample2[j]).transpose() * v;
+			chosen.push_back(v1 + v2);
+		}
+		//chosen.push_back(distribution);
+	}
+	cout << "lambda_hat = " << lambda_hat(chosen) << endl;
+	cout << "gamma_hat = " << gamma_hat(chosen) << endl;
+	
+	cout << "max(log_ER) = " << log_ER(chosen, lambda_hat(chosen)) << endl;
+	cout << "max(log_PA) = " << log_PA(chosen, gamma_hat(chosen), 2.44) << endl;
 }
 
 int
 GraphDetector::getDegree(const size_t graph, const size_t node) const
 {
-	cout << "_interGraph[graph] -> size() = " << _interGraph[graph] -> innerSize() << endl;
-	VectorXd v(_interGraph[graph] -> innerSize());
+	VectorXd v(getInterGraphSize(graph));
 	for(size_t i = 0; i < v.size(); ++i)
 		v(i) = 1;
-	cout << "v1 = " << (*_interGraph[graph]).row(node) * v << endl;
-	cout << "v2 = " << (*_interGraph[graph]).col(node).transpose() * v << endl;
 	int v1 = (*_interGraph[graph]).row(node) * v;
 	int v2 = (*_interGraph[graph]).col(node).transpose() * v;
 	return (v1 + v2);
 }
+
+double
+GraphDetector::log_ER(const vector<double>& degree, const double& lambda) const
+{
+	double sum1 = 0, sum2 = 0;
+	for(size_t i = 0; i < degree.size(); ++i){
+		sum1 += degree[i];
+		sum2 += log(factorial(degree[i]));
+	}
+	return log(lambda) * sum1 - lambda * degree.size() - sum2;
+}
+
+double
+GraphDetector::log_PA_plus(const vector<double>& degree, const double& gamma) const
+{
+	double sum = 0;
+	for(size_t i = 0; i < degree.size(); ++i)
+		if(degree[i])
+			sum += log(degree[i]);
+			
+	return - gamma * sum - degree.size() * log(boost::math::zeta(gamma));
+}
+
+double
+GraphDetector::log_PA(const vector<double>& degree, const double& gamma, const double& theta) const
+{
+	double sum = 0;
+	for(size_t i = 0; i < degree.size(); ++i)
+		if(!degree[i])
+			sum += theta;
+
+	return log_PA_plus(degree, gamma) - sum;
+}
+
+double
+GraphDetector::lambda_hat(const vector<double>& degree) const
+{
+	double sum = 0;
+	for(size_t i = 0; i < degree.size(); ++i)
+		sum += degree[i];
+	return sum / degree.size();
+}
+
+double
+GraphDetector::gamma_hat(const vector<double>& degree)
+{
+	double sum = 0;
+	for(size_t i = 0; i < degree.size(); ++i)
+		if(degree[i])
+			sum -= log(degree[i]);
+	sum /= degree.size();
+	cout << "log(20) = " << log(20) << endl;
+	cout << "sum = " << sum << endl;
+	// use iteration to get a close answer
+	double delta = 1, y = 2;
+	while(delta > PRECISION || delta < - PRECISION){
+		y += delta / derivative(fi, y, PRECISION);
+		delta = sum - fi(y);
+		cout << delta << endl;
+	}
+	return y;
+}
+

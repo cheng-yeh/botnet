@@ -58,6 +58,8 @@ int main(int argc, char** argv)
 	
 	GraphDetector GD;
 	GD.init(R.getData());
+	cout << "Start selecting\n";
+	GD.selectModel();
 
 	return 0;
 }

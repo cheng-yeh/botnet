@@ -1,8 +1,12 @@
+#include <set>
+#include <boost/math/special_functions/zeta.hpp>
+
 #include "util.h"
 
 using namespace std;
+using namespace boost::math;
 
-RandomNumGen  rnGen(0); 
+RandomNumGen  rnGen(0);
 
 size_t
 StrGetTok(const string& str, string& tok, size_t pos,
@@ -75,4 +79,36 @@ Str2Double(const string& str, double& num)
 
   	num *= sign;
   	return valid;
+}
+
+double
+factorial(const double& num)
+{
+	double out = 1;
+	for(size_t i = 1; i <= num; ++i)
+		out *= i;
+	return out;
+}
+
+double
+derivative(double (*f)(double), const double& x, const double& h)
+{
+	return (f(x + h) - f(x)) / h;
+}
+
+void
+sampling(vector<size_t>& sam, const size_t& num, const size_t& range)
+{
+	set<int> chosen;
+	for(size_t i = 0; i < num; ++i)
+		while(!chosen.insert(rnGen(range)).second){}
+	
+	for(set<int>::iterator it = chosen.begin(); it != chosen.end(); ++it)
+		sam.push_back(*it);
+}
+
+double
+fi(double x)
+{
+	return derivative(&zeta, x, PRECISION) / zeta(x);
 }

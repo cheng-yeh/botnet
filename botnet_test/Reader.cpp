@@ -64,10 +64,6 @@ Reader::ReadFromBinetflow(const std::string& fname)
 			end = StrGetTok(buff, tok, pos, ',');
 		}
 		if(length == -1)length = data.size();
-		for(size_t i = 0; i < data.size(); ++i){
-			//cout << data[i] << "~~~~";
-		}
-		cout << data.size() << endl;
 		if(length != data.size()){
 			cerr << "Format Error!\n";
 			return;
