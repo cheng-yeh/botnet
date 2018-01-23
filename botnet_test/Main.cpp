@@ -49,22 +49,25 @@ int main(int argc, char** argv)
 	string fileName2 = argv[2];
 	srand(time(0));
 
-	Reader original, background;
+	Reader* original = new Reader();
+	Reader* background = new Reader();
 	string ext1 = fileName1.substr(fileName1.rfind('.'), fileName1.length() - fileName1.rfind('.'));
 	string ext2 = fileName2.substr(fileName2.rfind('.'), fileName2.length() - fileName2.rfind('.'));
 
 	if(ext1 == ".binetflow")
-		original.ReadFromBinetflow(fileName1);
+		original -> ReadFromBinetflow(fileName1);
 		
 	if(ext2 == ".binetflow")
-		background.ReadFromBinetflow(fileName2);
+		background -> ReadFromBinetflow(fileName2);
 
 	clock_t startTime = clock();
 	
 	GraphDetector GD;
-	GD.readGraph(original.getData(), true);
+	GD.readGraph(original -> getData(), true);
+	delete original;
+	original = 0;
 	cout << "Start\n";
-	GD.readGraph(background.getData(), false);
+	GD.readGraph(background -> getData(), false);
 	cout << "Start selecting\n";
 	GD.selectModel();
 	
