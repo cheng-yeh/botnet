@@ -1,6 +1,7 @@
 #include <set>
 #include <map>
 #include <boost/math/special_functions/zeta.hpp>
+#include <math.h>
 
 #include "util.h"
 
@@ -142,4 +143,10 @@ VectorXd2Vector(const VectorXd& v1, vector<double>& v2)
 {
 	for(size_t i = 0; i < v1.size(); ++i)
 		v2.push_back(v1(i));
+}
+
+float
+poisson(int k, double lambda) {
+    // https://en.wikipedia.org/wiki/Poisson_distribution#Definition
+    return pow(M_E, k * log(lambda) - lambda - lgamma(k + 1.0));
 }

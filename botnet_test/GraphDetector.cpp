@@ -39,8 +39,10 @@ GraphDetector::~GraphDetector()
 }
 
 void
-GraphDetector::init(const vector< vector<string> >& rawdata)
+GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 {
+	vector< vector< vector<string> > >* ptr = (whole) ? &_timeList : &_timeList_back;
+	vector<MatrixXd*>* ptr2 = (whole) ? &_interGraph : &_interGraph_back;
 	TimeKey begin = TimeKey(rawdata[0][0]);
 	TimeKey end = TimeKey(rawdata[rawdata.size() - 1][0]);
 	double delta = end - begin;
@@ -62,29 +64,29 @@ GraphDetector::init(const vector< vector<string> >& rawdata)
 				temp.push_back(rawdata[j]);
 			}
 			else{
-				_timeList.push_back(temp);
+				(*ptr).push_back(temp);
 				break;
 			}
 		}
 	}
-	for(size_t i = 0; i < _timeList.size(); ++i){
+	for(size_t i = 0; i < ptr -> size(); ++i){
 		size_t count = 0;
 		map<string, size_t> node;
-		for(size_t j = 0; j < _timeList[i].size(); ++j){
-			if(node.insert( make_pair(_timeList[i][j][3], count) ).second)++count;
-			if(node.insert( make_pair(_timeList[i][j][6], count) ).second)++count;
+		for(size_t j = 0; j < (*ptr)[i].size(); ++j){
+			if(node.insert( make_pair((*ptr)[i][j][3], count) ).second)++count;
+			if(node.insert( make_pair((*ptr)[i][j][6], count) ).second)++count;
 		}
 		if(count != node.size())cout << "Error!!!!!!!!! count != node.size()\n";
 		cout << "count = " << count << endl;
-		MatrixXd* ptr = new MatrixXd(node.size(), node.size());
+		MatrixXd* ptr3 = new MatrixXd(node.size(), node.size());
 		for(size_t k = 0; k < node.size(); ++k)
 			for(size_t l = 0; l < node.size(); ++l)
-				(*ptr)(k, l) = 0;
+				(*ptr3)(k, l) = 0;
 		
-		for(size_t j = 0; j < _timeList[i].size(); ++j){
-			(*ptr)(node[_timeList[i][j][3]], node[_timeList[i][j][6]]) = 1;
+		for(size_t j = 0; j < (*ptr)[i].size(); ++j){
+			(*ptr3)(node[(*ptr)[i][j][3]], node[(*ptr)[i][j][6]]) = 1;
 		}
-		_interGraph.push_back(ptr);
+		(*ptr2).push_back(ptr3);
 	}
 	cout << "(0,0) = " << getDegree(0,0) << endl;
 	cout << "Init successfully!\n";
@@ -104,14 +106,14 @@ GraphDetector::selectModel(const int s1,const int s2)
 	
 	for(size_t i = 0; i < s1; ++i){
 		//chosen_graph.push_back(rnGen(_interGraph.size()));
-		size_t graphSize = getInterGraphSize( sample[i] );
+		size_t graphSize = getInterGraphSize( sample[i], false );
 		VectorXd v = VectorXd::Ones(graphSize);
 		//vector<double> distribution;
 		vector<size_t> sample2;
 		sampling(sample2, s2, graphSize);
 		for(size_t j = 0; j < s2; ++j){
-			double v1 = (*_interGraph[sample[i]]).row(sample2[j]) * v;
-			double v2 = (*_interGraph[sample[i]]).col(sample2[j]).transpose() * v;
+			double v1 = (*_interGraph_back[sample[i]]).row(sample2[j]) * v;
+			double v2 = (*_interGraph_back[sample[i]]).col(sample2[j]).transpose() * v;
 			chosen.push_back(v1 + v2);
 		}
 		//chosen.push_back(distribution);
@@ -145,17 +147,44 @@ GraphDetector::detect(vector<size_t>& anomaly)
 		all_degree.push_back(degree);
 	}
 	
+	vector< vector<double> > all_degree_back;
+	vector< vector<double> > all_distribution_back;
+	for(size_t i = 0; i < getWindowNum(); ++i){
+		vector<double> distribution;
+		vector<double> degree;
+		
+		VectorXd v = VectorXd::Ones( (*_interGraph_back[i]).innerSize() );
+		VectorXd v1 = ( (*_interGraph_back[i]) * v ).transpose();
+		VectorXd v2 = ( (*_interGraph_back[i]).transpose() * v ).transpose();
+		
+		Degree2Distribution(distribution, v1 + v2);
+		all_distribution_back.push_back(distribution);
+		
+		VectorXd2Vector(v1 + v2, degree);
+		all_degree_back.push_back(degree);
+	}
+	
+	
 	vector<double> divergence;
 	
-	if(_selectedModel){
-		
+	if(!_selectedModel){
+		cout << "Choose ER\n";
+		for(size_t i = 0; i < getWindowNum(); ++i){
+			double lambda = lambda_hat(all_degree_back[i]);
+			double er = rate_function_ER(all_distribution[i], lambda);
+			//divergence.push_back( (ba > chj) ? chj : ba );
+			divergence.push_back(er);
+			cout << divergence[i] << ", ";
+		}
 	}
 	else{
+		cout << "Choose PA\n";
 		for(size_t i = 0; i < getWindowNum(); ++i){
 			double gamma = gamma_hat(all_degree[i]);
 			double ba = rate_function_BA(all_distribution[i], gamma - 3);
-			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
-			divergence.push_back( (ba > chj) ? chj : ba );
+			//double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
+			//divergence.push_back( (ba > chj) ? chj : ba );
+			divergence.push_back(ba);
 			cout << divergence[i] << ", ";
 		}
 	}
@@ -164,7 +193,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 int
 GraphDetector::getDegree(const size_t graph, const size_t node) const
 {
-	VectorXd v = VectorXd::Ones(getInterGraphSize(graph));
+	VectorXd v = VectorXd::Ones(getInterGraphSize(graph, true));
 	int v1 = (*_interGraph[graph]).row(node) * v;
 	int v2 = (*_interGraph[graph]).col(node).transpose() * v;
 	return (v1 + v2);
@@ -232,15 +261,53 @@ GraphDetector::gamma_hat(const vector<double>& degree)
 double
 GraphDetector::rate_function_ER(const vector<double>& degree, const double& lambda)
 {
-	
+	double sum = 0;
+	for(size_t i = 1; i < degree.size(); ++i){
+		
+		if(degree[i] && poisson(i, lambda)){
+			sum += degree[i] * log( degree[i] / poisson(i, lambda) );
+			//cout << "i = " << i << endl;
+			//cout << "degree[i] = " << degree[i] << endl;
+			//cout << "poisson(i, lambda) = " << poisson(i, lambda) << endl;
+			//cout << 
+		}
+	}
+	double ave = lambda_hat(degree);
+	sum += 0.5 * (ave - lambda) + 0.5 * ave * log(lambda) - 0.5 * ave * log(ave);
+	return sum;
 }
 double
 GraphDetector::rate_function_BA(const vector<double>& degree, const double& alpha)
 {
-	
+	double item1 = 0, item2 = 0;
+	for(size_t i = 0; i < degree.size(); ++i){
+		if(!degree[i])continue;
+		double special = special_sum(degree, i);
+		item1 += (1 - special) * log( (1 - special) * (2 + alpha) / ( (i + 1 + alpha) * degree[i] ) );
+		//cout << "i = " << i << " item1 = " << item1 << endl;
+		//cout << "degree = " << degree[i] << endl;
+		//cout << (1 - special) * (2 + alpha) / ( (i + 1 + alpha) * degree[i] ) << endl;
+		//cout << ( (i + 1 + alpha) * degree[i] ) << endl;
+		//cout << (1 - special) << endl;
+	}
+	for(size_t i = 0; i < degree.size(); ++i)
+		item2 += i * degree[i];
+	item1 += (1 - item2) * log(2 + alpha);
+	//cout << "item1 = " << item1;
+	return item1;
 }
 double
 GraphDetector::rate_function_CHJ(const vector<double>& degree, const double& p)
 {
+	double item1 = 0;
 	
+}
+
+double
+GraphDetector::special_sum(const vector<double>& degree, const int& i)
+{
+	double sum = 0;
+	for(size_t j = 0; j <= i; ++j)
+		sum += degree[j];
+	return sum;
 }

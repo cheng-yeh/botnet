@@ -31,3 +31,5 @@ double fi(double x);
 void Degree2Distribution(vector<double>& distribution, const VectorXd& degree);
 
 void VectorXd2Vector(const VectorXd& v1, vector<double>& v2);
+
+float poisson(int k, double lambda);

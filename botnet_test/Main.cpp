@@ -42,24 +42,33 @@ int main(int argc, char** argv)
 		cout << "Error: provide path to binetflow(.binetflow) file" << endl;
 		return -1;
 	}
-	if(argc > 2)
-		window_num = atoi(argv[2]);
+	if(argc > 3)
+		window_num = atoi(argv[3]);
 		
-	string fileName = argv[1];
+	string fileName1 = argv[1];
+	string fileName2 = argv[2];
 	srand(time(0));
 
-	Reader R;
-	string ext = fileName.substr(fileName.rfind('.'), fileName.length() - fileName.rfind('.'));
+	Reader original, background;
+	string ext1 = fileName1.substr(fileName1.rfind('.'), fileName1.length() - fileName1.rfind('.'));
+	string ext2 = fileName2.substr(fileName2.rfind('.'), fileName2.length() - fileName2.rfind('.'));
 
-	if(ext == ".binetflow")
-		R.ReadFromBinetflow(fileName);
+	if(ext1 == ".binetflow")
+		original.ReadFromBinetflow(fileName1);
+		
+	if(ext2 == ".binetflow")
+		background.ReadFromBinetflow(fileName2);
 
 	clock_t startTime = clock();
 	
 	GraphDetector GD;
-	GD.init(R.getData());
+	GD.readGraph(original.getData(), true);
+	cout << "Start\n";
+	GD.readGraph(background.getData(), false);
 	cout << "Start selecting\n";
 	GD.selectModel();
+	
+	cout << "Start detecting\n";
 	vector<size_t> anomaly;
 	GD.detect(anomaly);
 

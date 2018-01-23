@@ -63,15 +63,17 @@ public:
 	~GraphDetector();
 	
 	// initialize the _timeList from Reader
-	void init(const vector< vector<string> >& raw_data);
-	
+	void readGraph(const vector< vector<string> >& raw_data, bool whole);
 	
 	void selectModel(const int s1 = 20,const int s2 = 40);
 	void detect(vector<size_t>& anomaly);
 	
 	// public get function
 	size_t getWindowNum() const{ return _timeList.size(); }
-	size_t getInterGraphSize(const size_t& graph) const{ return _interGraph[graph] -> innerSize(); }
+	size_t getInterGraphSize(const size_t& graph, bool whole) const{ 
+		if(whole)return _interGraph[graph] -> innerSize();
+		else return _interGraph_back[graph] -> innerSize();
+	}
 	
 	
 private:
@@ -92,9 +94,12 @@ private:
 	double rate_function_BA(const vector<double>& degree, const double& alpha);
 	double rate_function_CHJ(const vector<double>& degree, const double& p);
 	
+	double special_sum(const vector<double>& degree, const int& i);
 	
 private:
 	vector< vector< vector<string> > > _timeList;
+	vector< vector< vector<string> > > _timeList_back;
 	vector<MatrixXd*> _interGraph;
+	vector<MatrixXd*> _interGraph_back;
 	bool _selectedModel;
 };
