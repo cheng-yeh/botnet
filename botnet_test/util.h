@@ -14,13 +14,6 @@ using Eigen::VectorXd;
 
 #define PRECISION 1e-7
 
-/*********************************************************************
-Author       [ Chung-Yang (Ric) Huang ]
-Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
-*********************************************************************/
-
-size_t StrGetTok(const string& str, string& tok, size_t pos = 0, const char del = ' ');
-bool Str2Int(const string& str, int& num);
 bool Str2Double(const string& str, double& num);
 
 double factorial(const double& num);
@@ -33,3 +26,10 @@ void Degree2Distribution(vector<double>& distribution, const VectorXd& degree);
 void VectorXd2Vector(const VectorXd& v1, vector<double>& v2);
 
 float poisson(int k, double lambda);
+
+/*********************************************************************
+Author       [ Chung-Yang (Ric) Huang ]
+Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
+*********************************************************************/
+size_t StrGetTok(const string& str, string& tok, size_t pos = 0, const char del = ' ');
+bool Str2Int(const string& str, int& num);
