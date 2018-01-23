@@ -98,7 +98,7 @@ private:
 	
 private:
 	vector< vector< vector<string> > > _timeList;
-	vector< vector< vector<string> > > _timeList_back;
+	//vector< vector< vector<string> > > _timeList_back;
 	vector<MatrixXd*> _interGraph;
 	vector<MatrixXd*> _interGraph_back;
 	bool _selectedModel;

@@ -41,7 +41,6 @@ GraphDetector::~GraphDetector()
 void
 GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 {
-	vector< vector< vector<string> > >* ptr = (whole) ? &_timeList : &_timeList_back;
 	vector<MatrixXd*>* ptr2 = (whole) ? &_interGraph : &_interGraph_back;
 	TimeKey begin = TimeKey(rawdata[0][0]);
 	TimeKey end = TimeKey(rawdata[rawdata.size() - 1][0]);
@@ -64,17 +63,17 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 				temp.push_back(rawdata[j]);
 			}
 			else{
-				(*ptr).push_back(temp);
+				_timeList.push_back(temp);
 				break;
 			}
 		}
 	}
-	for(size_t i = 0; i < ptr -> size(); ++i){
+	for(size_t i = 0; i < _timeList.size(); ++i){
 		size_t count = 0;
 		map<string, size_t> node;
-		for(size_t j = 0; j < (*ptr)[i].size(); ++j){
-			if(node.insert( make_pair((*ptr)[i][j][3], count) ).second)++count;
-			if(node.insert( make_pair((*ptr)[i][j][6], count) ).second)++count;
+		for(size_t j = 0; j < _timeList[i].size(); ++j){
+			if(node.insert( make_pair(_timeList[i][j][3], count) ).second)++count;
+			if(node.insert( make_pair(_timeList[i][j][6], count) ).second)++count;
 		}
 		if(count != node.size())cout << "Error!!!!!!!!! count != node.size()\n";
 		cout << "count = " << count << endl;
@@ -83,15 +82,14 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 			for(size_t l = 0; l < node.size(); ++l)
 				(*ptr3)(k, l) = 0;
 		
-		for(size_t j = 0; j < (*ptr)[i].size(); ++j){
-			(*ptr3)(node[(*ptr)[i][j][3]], node[(*ptr)[i][j][6]]) = 1;
+		for(size_t j = 0; j < _timeList[i].size(); ++j){
+			(*ptr3)(node[_timeList[i][j][3]], node[_timeList[i][j][6]]) = 1;
 		}
 		(*ptr2).push_back(ptr3);
 	}
 	cout << "(0,0) = " << getDegree(0,0) << endl;
 	cout << "Init successfully!\n";
 	_timeList.clear();
-	_timeList_back.clear();
 }
 
 
