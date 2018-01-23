@@ -90,6 +90,8 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 	}
 	cout << "(0,0) = " << getDegree(0,0) << endl;
 	cout << "Init successfully!\n";
+	_timeList.clear();
+	_timeList_back.clear();
 }
 
 
