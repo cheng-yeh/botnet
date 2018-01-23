@@ -69,7 +69,7 @@ public:
 	void detect(vector<size_t>& anomaly);
 	
 	// public get function
-	size_t getWindowNum() const{ return _timeList.size(); }
+	size_t getWindowNum() const{ return _interGraph.size(); }
 	size_t getInterGraphSize(const size_t& graph, bool whole) const{ 
 		if(whole)return _interGraph[graph] -> innerSize();
 		else return _interGraph_back[graph] -> innerSize();
