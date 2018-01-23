@@ -65,9 +65,9 @@ public:
 	// initialize the _timeList from Reader
 	void init(const vector< vector<string> >& raw_data);
 	
-	// s1 for the number of samples from the k interaction graphs
-	// s2 for the number of samples from each interaction graph
-	bool selectModel(const int s1 = 20,const int s2 = 40);
+	
+	void selectModel(const int s1 = 20,const int s2 = 40);
+	void detect(vector<size_t>& anomaly);
 	
 	// public get function
 	size_t getWindowNum() const{ return _timeList.size(); }
@@ -87,9 +87,14 @@ private:
 	double lambda_hat(const vector<double>& degree) const;
 	double gamma_hat(const vector<double>& degree);
 	
+	// rate function
+	double rate_function_ER(const vector<double>& degree, const double& lambda);
+	double rate_function_BA(const vector<double>& degree, const double& alpha);
+	double rate_function_CHJ(const vector<double>& degree, const double& p);
+	
 	
 private:
 	vector< vector< vector<string> > > _timeList;
 	vector<MatrixXd*> _interGraph;
-	//vector< vector< >>
+	bool _selectedModel;
 };

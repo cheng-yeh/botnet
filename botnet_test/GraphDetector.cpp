@@ -91,8 +91,9 @@ GraphDetector::init(const vector< vector<string> >& rawdata)
 }
 
 
-
-bool
+// s1 for the number of samples from the k interaction graphs
+// s2 for the number of samples from each interaction graph
+void
 GraphDetector::selectModel(const int s1,const int s2)
 {
 	// sampling
@@ -104,9 +105,7 @@ GraphDetector::selectModel(const int s1,const int s2)
 	for(size_t i = 0; i < s1; ++i){
 		//chosen_graph.push_back(rnGen(_interGraph.size()));
 		size_t graphSize = getInterGraphSize( sample[i] );
-		VectorXd v( graphSize );
-		for(size_t j = 0; j < v.size(); ++j)
-			v(j) = 1;
+		VectorXd v = VectorXd::Ones(graphSize);
 		//vector<double> distribution;
 		vector<size_t> sample2;
 		sampling(sample2, s2, graphSize);
@@ -122,14 +121,50 @@ GraphDetector::selectModel(const int s1,const int s2)
 	
 	cout << "max(log_ER) = " << log_ER(chosen, lambda_hat(chosen)) << endl;
 	cout << "max(log_PA) = " << log_PA(chosen, gamma_hat(chosen), 2.44) << endl;
+	
+	_selectedModel = log_ER(chosen, lambda_hat(chosen)) > log_PA(chosen, gamma_hat(chosen), 2.44);
+}
+
+void
+GraphDetector::detect(vector<size_t>& anomaly)
+{
+	vector< vector<double> > all_degree;
+	vector< vector<double> > all_distribution;
+	for(size_t i = 0; i < getWindowNum(); ++i){
+		vector<double> distribution;
+		vector<double> degree;
+		
+		VectorXd v = VectorXd::Ones( (*_interGraph[i]).innerSize() );
+		VectorXd v1 = ( (*_interGraph[i]) * v ).transpose();
+		VectorXd v2 = ( (*_interGraph[i]).transpose() * v ).transpose();
+		
+		Degree2Distribution(distribution, v1 + v2);
+		all_distribution.push_back(distribution);
+		
+		VectorXd2Vector(v1 + v2, degree);
+		all_degree.push_back(degree);
+	}
+	
+	vector<double> divergence;
+	
+	if(_selectedModel){
+		
+	}
+	else{
+		for(size_t i = 0; i < getWindowNum(); ++i){
+			double gamma = gamma_hat(all_degree[i]);
+			double ba = rate_function_BA(all_distribution[i], gamma - 3);
+			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
+			divergence.push_back( (ba > chj) ? chj : ba );
+			cout << divergence[i] << ", ";
+		}
+	}
 }
 
 int
 GraphDetector::getDegree(const size_t graph, const size_t node) const
 {
-	VectorXd v(getInterGraphSize(graph));
-	for(size_t i = 0; i < v.size(); ++i)
-		v(i) = 1;
+	VectorXd v = VectorXd::Ones(getInterGraphSize(graph));
 	int v1 = (*_interGraph[graph]).row(node) * v;
 	int v2 = (*_interGraph[graph]).col(node).transpose() * v;
 	return (v1 + v2);
@@ -185,15 +220,27 @@ GraphDetector::gamma_hat(const vector<double>& degree)
 		if(degree[i])
 			sum -= log(degree[i]);
 	sum /= degree.size();
-	cout << "log(20) = " << log(20) << endl;
-	cout << "sum = " << sum << endl;
 	// use iteration to get a close answer
 	double delta = 1, y = 2;
 	while(delta > PRECISION || delta < - PRECISION){
 		y += delta / derivative(fi, y, PRECISION);
 		delta = sum - fi(y);
-		cout << delta << endl;
 	}
 	return y;
 }
 
+double
+GraphDetector::rate_function_ER(const vector<double>& degree, const double& lambda)
+{
+	
+}
+double
+GraphDetector::rate_function_BA(const vector<double>& degree, const double& alpha)
+{
+	
+}
+double
+GraphDetector::rate_function_CHJ(const vector<double>& degree, const double& p)
+{
+	
+}

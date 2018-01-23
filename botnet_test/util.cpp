@@ -1,10 +1,13 @@
 #include <set>
+#include <map>
 #include <boost/math/special_functions/zeta.hpp>
 
 #include "util.h"
 
 using namespace std;
 using namespace boost::math;
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 RandomNumGen  rnGen(0);
 
@@ -111,4 +114,32 @@ double
 fi(double x)
 {
 	return derivative(&zeta, x, PRECISION) / zeta(x);
+}
+
+void
+Degree2Distribution(vector<double>& distribution, const VectorXd& degree)
+{
+	map<double, double> collect;
+	size_t max_degree = 0;
+	for(size_t i = 0; i < degree.size(); ++i){
+		if(collect.insert(make_pair(degree(i), 1)).second){}
+		else{
+			++collect[degree(i)];
+		}
+		if(max_degree < degree(i))max_degree = degree(i);
+	}
+	
+	for(map<double, double>::iterator it = collect.begin(); it != collect.end(); ++it)
+		(it -> second) /= degree.size();
+	
+	for(size_t i = 0; i < max_degree + 1; ++i)
+		if(collect.find(i) != collect.end())distribution.push_back(collect[i]);
+		else distribution.push_back(0);
+}
+
+void
+VectorXd2Vector(const VectorXd& v1, vector<double>& v2)
+{
+	for(size_t i = 0; i < v1.size(); ++i)
+		v2.push_back(v1(i));
 }

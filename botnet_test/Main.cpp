@@ -60,6 +60,8 @@ int main(int argc, char** argv)
 	GD.init(R.getData());
 	cout << "Start selecting\n";
 	GD.selectModel();
+	vector<size_t> anomaly;
+	GD.detect(anomaly);
 
 	return 0;
 }
