@@ -1,9 +1,14 @@
+/*************************************************************
+  FileName     [ GraphDetector.cpp ]
+  Description  [ anomoly detection using degree based method ]
+  Author       [ Cheng-Yeh (Gary) Chen ]
+  Copyright    [ MIT ]
+*************************************************************/
 #include <map>
 #include <math.h>
 #include <boost/math/special_functions/zeta.hpp>
 
 #include "GraphDetector.h"
-//#include "util.h"
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -71,10 +76,16 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 	for(size_t i = 0; i < _timeList.size(); ++i){
 		size_t count = 0;
 		map<string, size_t> node;
+		bool bot = false;
 		for(size_t j = 0; j < _timeList[i].size(); ++j){
 			if(node.insert( make_pair(_timeList[i][j][3], count) ).second)++count;
 			if(node.insert( make_pair(_timeList[i][j][6], count) ).second)++count;
+			if(!bot)
+				if(_timeList[i][j][14].find("Botnet") != string::npos)
+					bot = true;
 		}
+		if(whole)_anomaly.push_back(bot);
+		cout << i << ":" << bot << " ";
 		if(count != node.size())cout << "Error!!!!!!!!! count != node.size()\n";
 		cout << "count = " << count << endl;
 		MatrixXd* ptr3 = new MatrixXd(node.size(), node.size());
@@ -164,6 +175,16 @@ GraphDetector::detect(vector<size_t>& anomaly)
 		all_degree_back.push_back(degree);
 	}
 	
+	for(size_t i = 0; i < getWindowNum(); ++i){
+		if(!_anomaly[i]){
+			cout << "[";
+			for(size_t j = 0; j < all_distribution[i].size(); ++j){
+				if(all_distribution[i][j])
+					cout << "[" << j << ", " << all_distribution[i][j] << "], ";
+			}
+			cout << "], ";
+		}
+	}
 	
 	vector<double> divergence;
 	
@@ -184,7 +205,15 @@ GraphDetector::detect(vector<size_t>& anomaly)
 			double ba = rate_function_BA(all_distribution[i], gamma - 3);
 			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
 			divergence.push_back( (ba > chj) ? chj : ba );
-			cout << divergence[i] << ", ";
+			//cout << divergence[i] << ", ";
+			if(divergence[i] < 1.93){
+				for(size_t j = 0; j < all_distribution[i].size(); ++j){
+					if(all_distribution[i][j]){
+						cout << "[" << j << "," << all_distribution[i][j] << "], ";
+					}
+				}
+				cout << endl;
+			}
 		}
 	}
 }

@@ -1,3 +1,9 @@
+/*********************************************************
+Filename     [ util.cpp ]
+Description  [ some global help functions and definition ]
+Author       [ Cheng-Yeh (Gary) Chen]
+Copyright    [ MIT ]
+*********************************************************/
 #include <set>
 #include <map>
 #include <boost/math/special_functions/zeta.hpp>
@@ -17,10 +23,8 @@ StrGetTok(const string& str, string& tok, size_t pos,
             const char del)
 {
    	size_t begin = pos;
-   	//cout << "begin = " << begin << " pos = " << pos << endl;
    	if (begin == string::npos) { tok = ""; return begin; }
    	size_t end = str.find_first_of(del, begin);
-   	//cout << "end = " << end << endl;
    	tok = str.substr(begin, end - begin);
    	if(end == string::npos)return end;
    	return end + 1;

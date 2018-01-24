@@ -1,5 +1,10 @@
+/***********************************************************
+  FileName     [ Reader.h ]
+  Description  [ reader for formats needed in this project ]
+  Author       [ Cheng-Yeh (Gary) Chen ]
+  Copyright    [ MIT ]
+***********************************************************/
 #include "Reader.h"
-//#include "util.h"
 
 #include <fstream>
 #include <algorithm>

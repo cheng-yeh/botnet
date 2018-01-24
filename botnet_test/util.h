@@ -1,3 +1,9 @@
+/*********************************************************
+Filename     [ util.h ]
+Description  [ some global help functions and definition ]
+Author       [ Cheng-Yeh (Gary) Chen]
+Copyright    [ MIT ]
+*********************************************************/
 #pragma once
 
 #include <iostream>

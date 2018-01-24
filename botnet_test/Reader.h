@@ -1,3 +1,9 @@
+/***********************************************************
+  FileName     [ Reader.h ]
+  Description  [ reader for formats needed in this project ]
+  Author       [ Cheng-Yeh (Gary) Chen ]
+  Copyright    [ MIT ]
+***********************************************************/
 #pragma once
 
 #include <iostream>

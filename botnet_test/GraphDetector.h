@@ -1,3 +1,9 @@
+/*************************************************************
+  FileName     [ GraphDetector.h ]
+  Description  [ anomoly detection using degree based method ]
+  Author       [ Cheng-Yeh (Gary) Chen ]
+  Copyright    [ MIT ]
+*************************************************************/
 #pragma once
 
 #include <iostream>
@@ -10,6 +16,11 @@ using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
+//----------------------------------------------------------------
+//			special time format class
+//----------------------------------------------------------------
+// parsing and comparison, and arithmetic operator for time format
+// format: year/month/day hour:minute:second
 class TimeKey
 {
 public:
@@ -56,6 +67,14 @@ private:
 	double _time[6];
 };
 
+//-----------------------------------------------------------------
+//			Detector based on degree distribution
+//-----------------------------------------------------------------
+// please refer to the part of anomoly detection of
+//		Wang, Jing, and Ioannis Ch Paschalidis.
+//		"Botnet detection based on anomaly and community detection."
+//		IEEE Transactions on Control of Network Systems 4.2 (2017): 392-404
+
 class GraphDetector
 {
 public:
@@ -65,6 +84,7 @@ public:
 	// initialize the _timeList from Reader
 	void readGraph(const vector< vector<string> >& raw_data, bool whole);
 	
+	// procedures for detection
 	void selectModel(const int s1 = 20,const int s2 = 40);
 	void detect(vector<size_t>& anomaly);
 	
@@ -94,12 +114,13 @@ private:
 	double rate_function_BA(const vector<double>& degree, const double& alpha);
 	double rate_function_CHJ(const vector<double>& degree, const double& p);
 	
+	// self-defined sum
 	double special_sum(const vector<double>& degree, const int& i);
 	
 private:
 	vector< vector< vector<string> > > _timeList;
-	//vector< vector< vector<string> > > _timeList_back;
 	vector<MatrixXd*> _interGraph;
 	vector<MatrixXd*> _interGraph_back;
+	vector<bool> _anomaly;
 	bool _selectedModel;
 };

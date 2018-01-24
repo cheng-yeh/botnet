@@ -1,3 +1,9 @@
+/********************************************************
+  FileName     [ Main.h ]
+  Description  [ The main file for this botnet detector ]
+  Author       [ Cheng-Yeh (Gary) Chen ]
+  Copyright    [ MIT ]
+********************************************************/
 #include <ctime>
 
 #include "Reader.h"
@@ -8,9 +14,6 @@
 #include <iostream>
 #include <algorithm>
 using namespace std;
-
-//settings
-const bool debug_verify = false;
 
 size_t window_num = 0;
 
