@@ -167,7 +167,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 	
 	vector<double> divergence;
 	
-	if(!_selectedModel){
+	if(_selectedModel){
 		cout << "Choose ER\n";
 		for(size_t i = 0; i < getWindowNum(); ++i){
 			double lambda = lambda_hat(all_degree_back[i]);
@@ -180,11 +180,10 @@ GraphDetector::detect(vector<size_t>& anomaly)
 	else{
 		cout << "Choose PA\n";
 		for(size_t i = 0; i < getWindowNum(); ++i){
-			double gamma = gamma_hat(all_degree[i]);
+			double gamma = gamma_hat(all_degree_back[i]);
 			double ba = rate_function_BA(all_distribution[i], gamma - 3);
-			//double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
-			//divergence.push_back( (ba > chj) ? chj : ba );
-			divergence.push_back(ba);
+			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
+			divergence.push_back( (ba > chj) ? chj : ba );
 			cout << divergence[i] << ", ";
 		}
 	}
@@ -299,15 +298,27 @@ GraphDetector::rate_function_BA(const vector<double>& degree, const double& alph
 double
 GraphDetector::rate_function_CHJ(const vector<double>& degree, const double& p)
 {
-	double item1 = 0;
+	double item1 = (1 - degree[0]) * log( (1 - degree[0]) / p);
+	double item2 = 0;
+	for(size_t i = 1; i < degree.size(); ++i){
+		if(!degree[i])continue;
+		double special = special_sum(degree, i);
+		item1 += (1 - special) * log( (1 - special) * 2 / ( (1 - p) * (1 + i) * degree[i] ) );
+	}
+	for(size_t i = 0; i < degree.size(); ++i)
+		item2 += i * degree[i];
+	
+	item1 += (1 - item2) * log( 2 / (1 - p) );
+	
+	return item2;
 	
 }
 
 double
 GraphDetector::special_sum(const vector<double>& degree, const int& i)
 {
-	double sum = 0;
-	for(size_t j = 0; j <= i; ++j)
-		sum += degree[j];
-	return sum;
+	//double sum = 0;
+	//for(size_t j = 0; j <= i; ++j)
+	//	sum += degree[j];
+	return degree[i] * i;
 }

@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 	cout << "Start\n";
 	GD.readGraph(background -> getData(), false);
 	cout << "Start selecting\n";
-	//GD.selectModel();
+	GD.selectModel();
 	
 	cout << "Start detecting\n";
 	vector<size_t> anomaly;
