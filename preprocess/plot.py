@@ -10,8 +10,8 @@ data = np.array([[[1, 0.8943514644], [2, 0.07426778243], [3, 0.01255230126], [4,
 for i in range(data.shape[0]):
 	plt.plot([math.log(data[i][j][0]) for j in range(len(data[i]))], [math.log(data[i][j][1]) for j in range(len(data[i]))], color = "red")
 
-plt.xlabel('degree(log scale)')
-plt.ylabel('p(log scale)')
+plt.xlabel('degree(log scale)', fontsize = 20)
+plt.ylabel('p(log scale)', fontsize = 20)
 plt.savefig('bot_back.png')
 plt.show()
 
