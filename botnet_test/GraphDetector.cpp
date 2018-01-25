@@ -205,15 +205,15 @@ GraphDetector::detect(vector<size_t>& anomaly)
 			double ba = rate_function_BA(all_distribution[i], gamma - 3);
 			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
 			divergence.push_back( (ba > chj) ? chj : ba );
-			//cout << divergence[i] << ", ";
-			if(divergence[i] < 1.93){
-				for(size_t j = 0; j < all_distribution[i].size(); ++j){
-					if(all_distribution[i][j]){
-						cout << "[" << j << "," << all_distribution[i][j] << "], ";
-					}
-				}
-				cout << endl;
-			}
+			cout << divergence[i] << ", ";
+			//if(divergence[i] < 1.93){
+			//	for(size_t j = 0; j < all_distribution[i].size(); ++j){
+			//		if(all_distribution[i][j]){
+			//			cout << "[" << j << "," << all_distribution[i][j] << "], ";
+			//		}
+			//	}
+			//	cout << endl;
+			//}
 		}
 	}
 }
