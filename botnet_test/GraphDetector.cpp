@@ -101,6 +101,8 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 	cout << "(0,0) = " << getDegree(0,0) << endl;
 	cout << "Init successfully!\n";
 	_timeList.clear();
+	for(size_t i = 0; i < _anomaly.size(); ++i)
+		cout << _anomaly[i] << ", ";
 }
 
 
