@@ -22,6 +22,7 @@ BotDiscover::BotDiscover(const vector<bool>& anomaly, const vector< vector< vect
 	_anomalyNumber = 0;
 	_anomaly = anomaly;
 	setPivot(timeList);
+	rebuild();
 }
 
 BotDiscover::~BotDiscover()
@@ -74,62 +75,60 @@ BotDiscover::setPivot(const vector< vector< vector<string> > >& timeList, const 
 	}
 	for(map<string, double>::iterator it = node.begin(); it != node.end(); ++it){
 		_anomalyList[it -> first] -> total_interaction = it -> second / _anomaly.size();
-		if(it -> second / _anomaly.size() > tau)
+		
+		if(it -> second / _anomaly.size() > tau){
 			_anomalyList[it -> first] -> pivot = true;
+			cout << it -> second / _anomaly.size() << endl;
+		}
 		else
 			_anomalyList[it -> first] -> pivot = false;
 	}
 }
 
 void
-rebuild()
+BotDiscover::rebuild()
 {
-	map<string, SCG_Node*> _tempList;
 	int count = 0;
 	for(map<string, SCG_Node*>::iterator it = _anomalyList.begin(); it != _anomalyList.end(); ++it){
 		const SCG_Node pvt = *(it -> second);
-		if(pvt -> pivot){
-			SCG_Node* ptr = new SCG_Node;
-			ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
-			ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
-			ptr -> id = ++count;
-			ptr -> pivot = true;
-			if(!_tempList.insert(make_pair((it -> first, ptr))))
-				cout << "Error1 in BotDiscover::rebuild\n";
+		if(pvt.pivot){
+			cout << "_scgList.size() = " << _scgList.size() << endl;
+			if(_scgList.size() != count){
+				cout << "Error! _scgList.size() != count\n";
+				return;
+			}
+			if( !_scgList.insert( make_pair(it -> first, newNode(true, count)) ).second ){
+				--count;
+				//cout << "Failed~~~~~~~~~~~~~~~~~~~~~~~Node:" << it -> first << "e" << endl;
+			}
+			else{
+				//cout << "Succeed~~~~~~~~~~~~~~~~~~~~~~~Node:" << it -> first << "e" << endl;
+			}
 			
 			for(size_t i = 0; i < pvt.out_list.size(); ++i){
-				for(size_t it1 = pvt.out_list[i].begin(); it1 != pvt.out_list[i].end(); ++ it1){
-					if(_tempList.find(*it1) == _tempList.end()){
-						SCG_Node* ptr = new SCG_Node;
-						ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
-						(ptr -> in_list)[i].insert(it -> first);
-						_tempList[it -> first] -> out_list[i].insert(*it1);
-						ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
-						ptr -> id = ++count;
-						ptr -> pivot = false;
-						if(!_tempList.insert(make_pair((*it1, ptr))))
-							cout << "Error1 in BotDiscover::rebuild\n";
+				for(set<string>::iterator it1 = pvt.out_list[i].begin(); it1 != pvt.out_list[i].end(); ++ it1){
+					if(degreeOneFilter(*it1))continue;
+					if(_scgList.find(*it1) == _scgList.end()){
+						if( !_scgList.insert( make_pair(*it1, newNode(false, count)) ).second )
+							cout << "Error2 in BotDiscover::rebuild\n";
+						(*_anomalyList[*it1]).in_list[i].insert(it -> first);
+						_scgList[it -> first] -> out_list[i].insert(*it1);
 					}
 					else{
-						if(!(_tempList.find(*it1) -> in_list)[i].insert(it -> first))
-							cout << "Error2 in BotDiscover::rebuild\n";
+						(_scgList.find(*it1) -> second -> in_list)[i].insert(it -> first);
 					}
 				}
-				for(size_t it1 = pvt.in_list[i].begin(); it1 != pvt.in_list[i].end(); ++ it1){
-					if(_tempList.find(*it1) == _tempList.end()){
-						SCG_Node* ptr = new SCG_Node;
-						ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
-						ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
-						(ptr -> out_list)[i].insert(it -> first);
-						_tempList[it -> first] -> in_list[i].insert(*it1);
-						ptr -> id = ++count;
-						ptr -> pivot = false;
-						if(!_tempList.insert(make_pair((*it1, ptr))))
-							cout << "Error1 in BotDiscover::rebuild\n";
+				
+				for(set<string>::iterator it1 = pvt.in_list[i].begin(); it1 != pvt.in_list[i].end(); ++ it1){
+					if(degreeOneFilter(*it1))continue;
+					if(_scgList.find(*it1) == _scgList.end()){
+						if(!_scgList.insert(make_pair(*it1, newNode(false, count))).second)
+							cout << "Error4 in BotDiscover::rebuild\n";
+						(*_anomalyList[*it1]).out_list[i].insert(it -> first);
+						_scgList[it -> first] -> in_list[i].insert(*it1);
 					}
 					else{
-						if(!(_tempList.find(*it1) -> out_list)[i].insert(it -> first))
-							cout << "Error2 in BotDiscover::rebuild\n";
+						(_scgList.find(*it1) -> second -> out_list)[i].insert(it -> first);
 					}
 				}
 			}
@@ -141,15 +140,21 @@ void
 BotDiscover::setSCG(const double tau)
 {
 	int debug = 0;
-	_SCG = MatrixXd::Zero(_anomalyList.size(), _anomalyList.size());
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
-	for(map<string, SCG_Node*>::iterator it1 = _anomalyList.begin(); it1 != _anomalyList.end(); ++it1){
-		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
+	cout << "_scgList.size() = " << _scgList.size() << endl;
+	cout << "SCGcheck\n";
+	_SCG = MatrixXd::Zero(_scgList.size(), _scgList.size());
+	cout << "SCGcheck2\n";
+	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
+	cout << "_scgList.size() = " << _scgList.size() << endl;
+	for(map<string, SCG_Node*>::iterator it1 = _scgList.begin(); it1 != _anomalyList.end(); ++it1){
+		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _scgList.end(); ++it2){
 			if(it1 == it2)continue;
 			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
-				cout << "debug = " << ++debug << endl;
-				cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
-				_SCG((it1 -> second) -> id, (it2 -> second) -> id) = 1;
+				cout << "\rdebug = " << ++debug << endl;
+				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
+				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << _scgList.size() << endl;
+				_SCG(it1 -> second -> id, it2 -> second -> id) = 1;
 			}
 		}
 	}
@@ -159,6 +164,29 @@ BotDiscover::setSCG(const double tau)
 			cout << _SCG(i, j) << " ";
 		cout << endl;
 	}
+}
+
+bool
+BotDiscover::degreeOneFilter(string node)
+{
+	 return (_anomalyList[node] -> in_list.size() + _anomalyList[node] -> out_list.size() > 5) ? false : true;
+}
+
+SCG_Node*
+BotDiscover::newNode(const bool& pvt, int& count)
+{
+	SCG_Node* ptr = new SCG_Node;
+	ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
+	ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
+	ptr -> id = count++;
+	ptr -> pivot = pvt;
+	return ptr;
+}
+
+void
+BotDiscover::deleteNode()
+{
+	
 }
 
 double

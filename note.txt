@@ -1,0 +1,3 @@
+20170130
+
+oneNodeFilter can be placed at two stages: one is after setPivot, one is right before serPivot. Both worth a try.
