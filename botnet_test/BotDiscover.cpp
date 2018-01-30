@@ -151,7 +151,7 @@ BotDiscover::setSCG(const double tau)
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _scgList.end(); ++it2){
 			if(it1 == it2)continue;
 			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
-				cout << "\rdebug = " << ++debug << endl;
+				if(debug % 1000 == 0)cout << "\rdebug = " << ++debug << endl;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
 				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << _scgList.size() << endl;
 				_SCG(it1 -> second -> id, it2 -> second -> id) = 1;
