@@ -47,18 +47,18 @@ public:
    
 	double operator - (const TimeKey k) const {
 		double delta = 0;
-		int cross[6] = {0, 0, 0, 3600, 60, 1};
+		int _cross[6] = {0, 0, 0, 3600, 60, 1};
 		for(size_t i = 0; i < 6; ++i){
-			delta += (this -> _time[i] - k()[i]) * cross[i];
+			delta += (this -> _time[i] - k()[i]) * _cross[i];
 		}
 		return delta;
 	}
 	
 	int operator / (const double mod) const {
 		double delta = 0;
-		int cross[6] = {0, 0, 0, 3600, 60, 1};
+		int _cross[6] = {0, 0, 0, 3600, 60, 1};
 		for(size_t i = 0; i < 6; ++i){
-			delta += (this -> _time[i]) * cross[i];
+			delta += (this -> _time[i]) * _cross[i];
 		}
 		return delta / mod;
 	}
@@ -89,12 +89,13 @@ public:
 	void detect(vector<size_t>& anomaly);
 	
 	// public get function
-	size_t getWindowNum() const{ return _interGraph.size(); }
-	size_t getInterGraphSize(const size_t& graph, bool whole) const{ 
+	size_t getWindowNum() const { return _interGraph.size(); }
+	size_t getInterGraphSize(const size_t& graph, bool whole) const { 
 		if(whole)return _interGraph[graph] -> innerSize();
 		else return _interGraph_back[graph] -> innerSize();
 	}
-	
+	const vector<bool>& getAnomaly() const { return _anomaly; }
+	const vector< vector< vector<string> > >& getTimeList(){ return _timeList; }
 	
 private:
 	// private get function

@@ -57,7 +57,7 @@ Reader::ReadFromBinetflow(const std::string& fname)
 	file.close();
 }
 
-vector< vector<string> >
+const vector< vector<string> >&
 Reader::getData() const
 {
 	return raw_data;

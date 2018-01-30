@@ -11,7 +11,7 @@
 #include "GraphDetector.h"
 
 using namespace std;
-using Eigen::MatrixXd;
+//using Eigen::MatrixXd;
 using namespace boost::math;
 
 extern size_t window_num;
@@ -19,6 +19,7 @@ extern RandomNumGen  rnGen;
 
 TimeKey::TimeKey(string time)
 {
+	// initialize _time[6]
 	string tok;
 	size_t pos = 0, count = -1;
 	char del[6] = {'/', '/', ' ', ':', ':'};
@@ -94,13 +95,14 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 				(*ptr3)(k, l) = 0;
 		
 		for(size_t j = 0; j < _timeList[i].size(); ++j){
-			(*ptr3)(node[_timeList[i][j][3]], node[_timeList[i][j][6]]) = 1;
+			(*ptr3)(node[_timeList[i][j][3]], node[_timeList[i][j][6]]) = 0.5;
+			(*ptr3)(node[_timeList[i][j][6]], node[_timeList[i][j][3]]) = 0.5;
 		}
 		(*ptr2).push_back(ptr3);
 	}
 	cout << "(0,0) = " << getDegree(0,0) << endl;
 	cout << "Init successfully!\n";
-	_timeList.clear();
+	//_timeList.clear();
 	for(size_t i = 0; i < _anomaly.size(); ++i)
 		cout << _anomaly[i] << ", ";
 }
@@ -180,11 +182,11 @@ GraphDetector::detect(vector<size_t>& anomaly)
 	for(size_t i = 0; i < getWindowNum(); ++i){
 		if(!_anomaly[i]){
 			cout << "[";
-			for(size_t j = 0; j < all_distribution[i].size(); ++j){
-				if(all_distribution[i][j])
-					cout << "[" << j << ", " << all_distribution[i][j] << "], ";
-			}
-			cout << "], ";
+			//for(size_t j = 0; j < all_distribution[i].size(); ++j){
+			//	if(all_distribution[i][j])
+			//		cout << "[" << j << ", " << all_distribution[i][j] << "], ";
+			//}
+			//cout << "], ";
 		}
 	}
 	
@@ -197,7 +199,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 			double er = rate_function_ER(all_distribution[i], lambda);
 			//divergence.push_back( (ba > chj) ? chj : ba );
 			divergence.push_back(er);
-			cout << divergence[i] << ", ";
+			//cout << divergence[i] << ", ";
 		}
 	}
 	else{
@@ -207,7 +209,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 			double ba = rate_function_BA(all_distribution[i], gamma - 3);
 			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
 			divergence.push_back( (ba > chj) ? chj : ba );
-			cout << divergence[i] << ", ";
+			//cout << divergence[i] << ", ";
 			//if(divergence[i] < 1.93){
 			//	for(size_t j = 0; j < all_distribution[i].size(); ++j){
 			//		if(all_distribution[i][j]){
@@ -225,8 +227,8 @@ GraphDetector::getDegree(const size_t graph, const size_t node) const
 {
 	VectorXd v = VectorXd::Ones(getInterGraphSize(graph, true));
 	int v1 = (*_interGraph[graph]).row(node) * v;
-	int v2 = (*_interGraph[graph]).col(node).transpose() * v;
-	return (v1 + v2);
+	//int v2 = (*_interGraph[graph]).col(node).transpose() * v;
+	return (v1);
 }
 
 double

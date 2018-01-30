@@ -23,7 +23,7 @@ public:
 	
 	void ReadFromBinetflow(const std::string& fname);
 	
-	vector< vector<string> > getData() const;
+	const vector< vector<string> >& getData() const;
 
 private:
 

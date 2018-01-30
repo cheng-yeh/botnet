@@ -1,12 +1,12 @@
 CC = g++
 CFLAGS = -g -Wall
 
-default: comboCPP
+default: botnet
 
-comboCPP: Main.o Reader.o GraphDetector.o FlowDetector.o util.o
-	$(CC) $(CFLAGS) -o comboCPP Main.o Reader.o GraphDetector.o FlowDetector.o util.o
+botnet: Main.o Reader.o GraphDetector.o FlowDetector.o BotDiscover.o util.o
+	$(CC) $(CFLAGS) -o botnet Main.o Reader.o GraphDetector.o FlowDetector.o BotDiscover.o util.o
 
-Main.o: Main.cpp Reader.h GraphDetector.h FlowDetector.h
+Main.o: Main.cpp Reader.h GraphDetector.h FlowDetector.h BotDiscover.h
 	$(CC) $(CFLAGS) -c Main.cpp
 
 Reader.o: Reader.cpp Reader.h
@@ -17,6 +17,9 @@ GraphDetector.o: GraphDetector.cpp GraphDetector.h util.h
 
 FlowDetector.o: FlowDetector.cpp FlowDetector.h
 	$(CC) $(FLAGS) -c FlowDetector.cpp
+
+BotDiscover.o: BotDiscover.cpp BotDiscover.h util.h
+	$(CC) $(FLAGS) -c BotDiscover.cpp
 	
 util.o: util.cpp util.h rnGen.h
 	$(CC) $(FLAGS) -c util.cpp
