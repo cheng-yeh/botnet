@@ -11,7 +11,7 @@ Copyright    [ MIT ]
 #include <string>
 #include <math.h>
 #include <Eigen/Dense>
-#include <set>
+//#include <set>
 
 #include "rnGen.h"
 
@@ -23,9 +23,9 @@ using Eigen::VectorXd;
 
 struct SCG_Node
 {
-	vector< set<string> > in_list;
-	vector< set<string> > out_list;
-	double total_interaction;
+	vector< vector<string> > in_list;
+	vector< vector<string> > out_list;
+	//double total_interaction;
 	bool pivot;
 	size_t id;
 };
