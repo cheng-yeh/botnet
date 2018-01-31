@@ -147,11 +147,13 @@ BotDiscover::setSCG(const double tau)
 	cout << "SCGcheck2\n";
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
 	cout << "_scgList.size() = " << _scgList.size() << endl;
-	for(map<string, SCG_Node*>::iterator it1 = _scgList.begin(); it1 != _anomalyList.end(); ++it1){
+	for(map<string, SCG_Node*>::iterator it1 = _scgList.begin(); it1 != _scgList.end(); ++it1){
+		cout << "\r" << debug;
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _scgList.end(); ++it2){
 			if(it1 == it2)continue;
 			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
-				if(debug % 1000 == 0)cout << "\rdebug = " << ++debug << endl;
+				++debug;
+				//if(debug % 10000 == 0)cout << "debug = " << debug;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
 				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << _scgList.size() << endl;
 				_SCG(it1 -> second -> id, it2 -> second -> id) = 1;
