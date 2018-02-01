@@ -23,10 +23,9 @@ public:
 	
 	void ReadFromBinetflow(const std::string& fname);
 	
-	const vector< vector<string> >& getData() const;
-
-private:
-
+	const vector< vector<string> >& getRawData() const;
+	void rawToTimelist(vector< vector< vector<string> > >& _timeList);
+	
 private:
 	vector< vector<string> > raw_data;
 };

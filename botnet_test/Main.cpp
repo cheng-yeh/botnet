@@ -29,26 +29,19 @@ int main(int argc, char** argv)
 		window_num = atoi(argv[2]);
 		
 	string fileName1 = argv[1];
-	//string fileName2 = argv[2];
 	srand(time(0));
 
-	Reader* original = new Reader();
-	//Reader* background = new Reader();
+	Reader* R = new Reader();
 	string ext1 = fileName1.substr(fileName1.rfind('.'), fileName1.length() - fileName1.rfind('.'));
-	//string ext2 = fileName2.substr(fileName2.rfind('.'), fileName2.length() - fileName2.rfind('.'));
 
 	if(ext1 == ".binetflow")
-		original -> ReadFromBinetflow(fileName1);
+		R -> ReadFromBinetflow(fileName1);
 		
-	//if(ext2 == ".binetflow")
-	//	background -> ReadFromBinetflow(fileName2);
-
 	clock_t startTime = clock();
 	
 	GraphDetector GD;
-	GD.readGraph(original -> getData(), true);
-	delete original;
-	original = 0;
+	R -> rawToTimelist(GD._timeList);
+	GD.timelistToIntergraph();
 	cout << "Start\n";
 	//GD.readGraph(background -> getData(), false);
 	//cout << "Start selecting\n";

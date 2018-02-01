@@ -10,6 +10,8 @@
 #include <algorithm>
 using namespace std;
 
+extern size_t window_num;
+
 Reader::Reader(void)
 {
 }
@@ -58,7 +60,38 @@ Reader::ReadFromBinetflow(const std::string& fname)
 }
 
 const vector< vector<string> >&
-Reader::getData() const
+Reader::getRawData() const
 {
 	return raw_data;
+}
+
+void
+Reader::rawToTimelist(vector< vector< vector<string> > >& _timeList)
+{
+	TimeKey begin = TimeKey(raw_data[0][0]);
+	TimeKey end = TimeKey(raw_data[raw_data.size() - 1][0]);
+	double delta = end - begin;
+	cout.precision(10);
+	cout << "The total duration is " << delta << " seconds\n";
+	if(window_num == 0)cout << "Need to assign number of windows\n";
+	else cout << "The window size is " << delta / window_num << " seconds\n";
+	
+	double window_size = delta / window_num;
+	
+	size_t j = 0;
+	for(size_t i = 0; i < window_num; ++i){
+		vector< vector<string> > temp;
+
+		for(; j < raw_data.size(); ++j){
+			TimeKey key = TimeKey(raw_data[j][0]);
+
+			if(int( (key - begin) / window_size) == i){
+				temp.push_back(raw_data[j]);
+			}
+			else{
+				_timeList.push_back(temp);
+				break;
+			}
+		}
+	}
 }

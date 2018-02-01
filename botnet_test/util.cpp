@@ -18,6 +18,20 @@ using Eigen::VectorXd;
 
 RandomNumGen  rnGen(0);
 
+TimeKey::TimeKey(string time)
+{
+	// initialize _time[6]
+	string tok;
+	size_t pos = 0, count = -1;
+	char del[6] = {'/', '/', ' ', ':', ':'};
+	for(size_t i = 0; i < 5; ++i){
+		pos = StrGetTok(time, tok, pos, del[i]);
+		if(!Str2Double(tok, _time[i]))cerr << "Parsing error! " << tok << " is not a double!\n";
+	}
+	StrGetTok(time, tok, pos);
+	if(!Str2Double(tok, _time[5]))cerr << "Parsing error! " << tok << " is not a double!\n";
+}
+
 size_t
 StrGetTok(const string& str, string& tok, size_t pos,
             const char del)

@@ -17,20 +17,6 @@ using namespace boost::math;
 extern size_t window_num;
 extern RandomNumGen  rnGen;
 
-TimeKey::TimeKey(string time)
-{
-	// initialize _time[6]
-	string tok;
-	size_t pos = 0, count = -1;
-	char del[6] = {'/', '/', ' ', ':', ':'};
-	for(size_t i = 0; i < 5; ++i){
-		pos = StrGetTok(time, tok, pos, del[i]);
-		if(!Str2Double(tok, _time[i]))cerr << "Parsing error! " << tok << " is not a double!\n";
-	}
-	StrGetTok(time, tok, pos);
-	if(!Str2Double(tok, _time[5]))cerr << "Parsing error! " << tok << " is not a double!\n";
-}
-
 GraphDetector::GraphDetector()
 {
 
@@ -45,35 +31,9 @@ GraphDetector::~GraphDetector()
 }
 
 void
-GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
-{
-	vector<MatrixXd*>* ptr2 = (whole) ? &_interGraph : &_interGraph_back;
-	TimeKey begin = TimeKey(rawdata[0][0]);
-	TimeKey end = TimeKey(rawdata[rawdata.size() - 1][0]);
-	double delta = end - begin;
-	cout.precision(10);
-	cout << "The total duration is " << delta << " seconds\n";
-	if(window_num == 0)cout << "Need to assign number of windows\n";
-	else cout << "The window size is " << delta / window_num << " seconds\n";
+GraphDetector::timelistToIntergraph(){
+	vector<MatrixXd*>* ptr2 = &_interGraph;
 	
-	double window_size = delta / window_num;
-	
-	size_t j = 0;
-	for(size_t i = 0; i < window_num; ++i){
-		vector< vector<string> > temp;
-
-		for(; j < rawdata.size(); ++j){
-			TimeKey key = TimeKey(rawdata[j][0]);
-
-			if(int( (key - begin) / window_size) == i){
-				temp.push_back(rawdata[j]);
-			}
-			else{
-				_timeList.push_back(temp);
-				break;
-			}
-		}
-	}
 	for(size_t i = 0; i < _timeList.size(); ++i){
 		size_t count = 0;
 		map<string, size_t> node;
@@ -85,10 +45,11 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 				if(_timeList[i][j][14].find("Botnet") != string::npos)
 					bot = true;
 		}
-		if(whole)_anomaly.push_back(bot);
+		_anomaly.push_back(bot);
 		cout << i << ":" << bot << " ";
 		if(count != node.size())cout << "Error!!!!!!!!! count != node.size()\n";
 		cout << "count = " << count << endl;
+		
 		MatrixXd* ptr3 = new MatrixXd(node.size(), node.size());
 		for(size_t k = 0; k < node.size(); ++k)
 			for(size_t l = 0; l < node.size(); ++l)
@@ -100,13 +61,13 @@ GraphDetector::readGraph(const vector< vector<string> >& rawdata, bool whole)
 		}
 		(*ptr2).push_back(ptr3);
 	}
+	
 	cout << "(0,0) = " << getDegree(0,0) << endl;
 	cout << "Init successfully!\n";
 	//_timeList.clear();
 	for(size_t i = 0; i < _anomaly.size(); ++i)
 		cout << _anomaly[i] << ", ";
 }
-
 
 // s1 for the number of samples from the k interaction graphs
 // s2 for the number of samples from each interaction graph
@@ -117,18 +78,18 @@ GraphDetector::selectModel(const int s1,const int s2)
 	vector<size_t> sample;
 	//vector< vector<double> > chosen;
 	vector<double> chosen;
-	sampling(sample, s1, getWindowNum());
+	sampling(sample, s1, window_num);
 	
 	for(size_t i = 0; i < s1; ++i){
 		//chosen_graph.push_back(rnGen(_interGraph.size()));
-		size_t graphSize = getInterGraphSize( sample[i], false );
+		size_t graphSize = getInterGraphSize(sample[i]);
 		VectorXd v = VectorXd::Ones(graphSize);
 		//vector<double> distribution;
 		vector<size_t> sample2;
 		sampling(sample2, s2, graphSize);
 		for(size_t j = 0; j < s2; ++j){
-			double v1 = (*_interGraph_back[sample[i]]).row(sample2[j]) * v;
-			double v2 = (*_interGraph_back[sample[i]]).col(sample2[j]).transpose() * v;
+			double v1 = (*_interGraph[sample[i]]).row(sample2[j]) * v;
+			double v2 = (*_interGraph[sample[i]]).col(sample2[j]).transpose() * v;
 			chosen.push_back(v1 + v2);
 		}
 		//chosen.push_back(distribution);
@@ -147,7 +108,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 {
 	vector< vector<double> > all_degree;
 	vector< vector<double> > all_distribution;
-	for(size_t i = 0; i < getWindowNum(); ++i){
+	for(size_t i = 0; i < window_num; ++i){
 		vector<double> distribution;
 		vector<double> degree;
 		
@@ -162,24 +123,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 		all_degree.push_back(degree);
 	}
 	
-	vector< vector<double> > all_degree_back;
-	vector< vector<double> > all_distribution_back;
-	for(size_t i = 0; i < getWindowNum(); ++i){
-		vector<double> distribution;
-		vector<double> degree;
-		
-		VectorXd v = VectorXd::Ones( (*_interGraph_back[i]).innerSize() );
-		VectorXd v1 = ( (*_interGraph_back[i]) * v ).transpose();
-		VectorXd v2 = ( (*_interGraph_back[i]).transpose() * v ).transpose();
-		
-		Degree2Distribution(distribution, v1 + v2);
-		all_distribution_back.push_back(distribution);
-		
-		VectorXd2Vector(v1 + v2, degree);
-		all_degree_back.push_back(degree);
-	}
-	
-	for(size_t i = 0; i < getWindowNum(); ++i){
+	for(size_t i = 0; i < window_num; ++i){
 		if(!_anomaly[i]){
 			cout << "[";
 			//for(size_t j = 0; j < all_distribution[i].size(); ++j){
@@ -194,8 +138,8 @@ GraphDetector::detect(vector<size_t>& anomaly)
 	
 	if(_selectedModel){
 		cout << "Choose ER\n";
-		for(size_t i = 0; i < getWindowNum(); ++i){
-			double lambda = lambda_hat(all_degree_back[i]);
+		for(size_t i = 0; i < window_num; ++i){
+			double lambda = lambda_hat(all_degree[i]);
 			double er = rate_function_ER(all_distribution[i], lambda);
 			//divergence.push_back( (ba > chj) ? chj : ba );
 			divergence.push_back(er);
@@ -204,8 +148,8 @@ GraphDetector::detect(vector<size_t>& anomaly)
 	}
 	else{
 		cout << "Choose PA\n";
-		for(size_t i = 0; i < getWindowNum(); ++i){
-			double gamma = gamma_hat(all_degree_back[i]);
+		for(size_t i = 0; i < window_num; ++i){
+			double gamma = gamma_hat(all_degree[i]);
 			double ba = rate_function_BA(all_distribution[i], gamma - 3);
 			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));
 			divergence.push_back( (ba > chj) ? chj : ba );
@@ -225,7 +169,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 int
 GraphDetector::getDegree(const size_t graph, const size_t node) const
 {
-	VectorXd v = VectorXd::Ones(getInterGraphSize(graph, true));
+	VectorXd v = VectorXd::Ones(getInterGraphSize(graph));
 	int v1 = (*_interGraph[graph]).row(node) * v;
 	//int v2 = (*_interGraph[graph]).col(node).transpose() * v;
 	return (v1);

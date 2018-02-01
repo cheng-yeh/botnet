@@ -27,12 +27,12 @@ BotDiscover::BotDiscover(const vector<bool>& anomaly, const vector< vector< vect
 
 BotDiscover::~BotDiscover()
 {
-	for(map<string, SCG_Node*>::iterator it = _anomalyList.begin(); it != _anomalyList.end(); ++it){
+	/*for(map<string, SCG_Node*>::iterator it = _anomalyList.begin(); it != _anomalyList.end(); ++it){
 		if(it -> second){
 			delete (it -> second);
 			it -> second = 0;
 		}
-	}
+	}*/
 }
 
 void
@@ -40,48 +40,41 @@ BotDiscover::setPivot(const vector< vector< vector<string> > >& timeList, const 
 {
 	// collect node
 	map<string, double> node;
-	size_t count = 0;
+	//size_t count = 0;
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			++_anomalyNumber;
 			for(size_t j = 0; j < timeList[i].size(); ++j){
 				if(node.insert(make_pair(timeList[i][j][3], 1)).second){
-					SCG_Node* ptr = new SCG_Node;
-					ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
-					ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
-					ptr -> id = count++;
-					if(!_anomalyList.insert(make_pair(timeList[i][j][3], ptr)).second)
-						cout << "Error in BotDiscover::setTotalInteraction\n";
+					//if(!_anomalyList.insert(make_pair(timeList[i][j][3], newNode(false, count))).second)
+					//	cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				else{
 					++node[timeList[i][j][3]];
 				}
 				if(node.insert(make_pair(timeList[i][j][6], 1)).second){
-					SCG_Node* ptr = new SCG_Node;
-					ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
-					ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
-					ptr -> id = count++;
-					if(!_anomalyList.insert(make_pair(timeList[i][j][6], ptr)).second)
-						cout << "Error in BotDiscover::setTotalInteraction\n";
+					//if(!_anomalyList.insert(make_pair(timeList[i][j][6], newNode(false, count))).second)
+					//	cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				else{
 					++node[timeList[i][j][6]];
 				}
 				
-				(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
-				(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
+				//(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
+				//(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
 			}
 		}
 	}
 	for(map<string, double>::iterator it = node.begin(); it != node.end(); ++it){
-		_anomalyList[it -> first] -> total_interaction = it -> second / _anomaly.size();
+		//_anomalyList[it -> first] -> total_interaction = it -> second / _anomaly.size();
 		
 		if(it -> second / _anomaly.size() > tau){
-			_anomalyList[it -> first] -> pivot = true;
-			cout << it -> second / _anomaly.size() << endl;
+			//_anomalyList[it -> first] -> pivot = true;
+			_pivot.insert(it -> first);
+			cout << it -> first << ": " << it -> second / _anomaly.size() << endl;
 		}
 		else
-			_anomalyList[it -> first] -> pivot = false;
+			//_anomalyList[it -> first] -> pivot = false;
 	}
 }
 
