@@ -22,7 +22,7 @@ TimeKey::TimeKey(string time)
 {
 	// initialize _time[6]
 	string tok;
-	size_t pos = 0, count = -1;
+	size_t pos = 0;
 	char del[6] = {'/', '/', ' ', ':', ':'};
 	for(size_t i = 0; i < 5; ++i){
 		pos = StrGetTok(time, tok, pos, del[i]);
@@ -140,7 +140,7 @@ Degree2Distribution(vector<double>& distribution, const VectorXd& degree)
 {
 	map<double, double> collect;
 	size_t max_degree = 0;
-	for(size_t i = 0; i < degree.size(); ++i){
+	for(unsigned i = 0; i < degree.size(); ++i){
 		if(collect.insert(make_pair(degree(i), 1)).second){}
 		else{
 			++collect[degree(i)];
@@ -159,7 +159,7 @@ Degree2Distribution(vector<double>& distribution, const VectorXd& degree)
 void
 VectorXd2Vector(const VectorXd& v1, vector<double>& v2)
 {
-	for(size_t i = 0; i < v1.size(); ++i)
+	for(unsigned i = 0; i < v1.size(); ++i)
 		v2.push_back(v1(i));
 }
 

@@ -51,7 +51,7 @@ private:
 	int _anomalyNumber;
 	unordered_set<string> _pivot;
 	map<string, SCG_Node*> _anomalyList;
-	map<string, SCG_Node*> _scgList;
+	//map<string, SCG_Node*> _scgList;
 	//vector< vector<double> > _total_interaction;
 	MatrixXd _SCG;
 };

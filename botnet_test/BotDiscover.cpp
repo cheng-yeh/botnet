@@ -43,7 +43,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 {
 	// node for collect total interaction
 	map<string, double> node;
-	
+	int count = 0;
 	// compute total interaction
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
@@ -53,14 +53,14 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 					++node[timeList[i][j][3]];
 				}
 				else{
-					if(!_anomalyList.emplace(timeList[i][j][3], newNode(false, count)).second)
+					if(!_anomalyList.emplace(timeList[i][j][3], newNode(count)).second)
 						cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				if(!node.emplace(timeList[i][j][6], 1).second){
 					++node[timeList[i][j][6]];
 				}
 				else{
-					if(!_anomalyList.emplace(timeList[i][j][6], newNode(false, count)).second)
+					if(!_anomalyList.emplace(timeList[i][j][6], newNode(count)).second)
 						cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				
@@ -79,7 +79,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		}
 		else{
 			if(_anomalyList.find(x.first) != _anomalyList.end())
-				_anomalyList[x.first] -> pivot false;
+				_anomalyList[x.first] -> pivot = false;
 			else cout << "Error in BotDiscover:: select pivots\n";
 		}
 	}
