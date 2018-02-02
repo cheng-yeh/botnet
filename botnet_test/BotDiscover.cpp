@@ -70,11 +70,15 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		}
 	}
 	// select pivots
+	cout << "pivot:";
 	for(auto& x: node){
 		//_anomalyList[x.first] -> total_interaction = x.second / _anomaly.size();
-		if(x.second / _anomaly.size() > tau){
-			if(_anomalyList.find(x.first) != _anomalyList.end())
+		if(x.second / _anomalyNumber > tau){
+			if(_anomalyList.find(x.first) != _anomalyList.end()){
 				_anomalyList[x.first] -> pivot = true;
+				cout << x.first << " ";
+				cout << x.second / _anomalyNumber << endl;
+			}
 			else cout << "Error in BotDiscover:: select pivots\n";
 		}
 		else{
@@ -92,14 +96,18 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 					(_anomalyList[timeList[i][j][3]] -> out_list)[i].push_back(timeList[i][j][6]);
 					(_anomalyList[timeList[i][j][6]] -> in_list)[i].push_back(timeList[i][j][3]);
 				}
-				if(_anomalyList[timeList[i][j][6]] -> pivot){
+				else if(_anomalyList[timeList[i][j][6]] -> pivot){
 					(_anomalyList[timeList[i][j][6]] -> out_list)[i].push_back(timeList[i][j][3]);
 					(_anomalyList[timeList[i][j][3]] -> in_list)[i].push_back(timeList[i][j][6]);
 				}
 			}
 		}
 	}
+	for(auto& x: _anomalyList)
+		if(x.second -> pivot)
+			cout << x.first << ":" << mean(x.first) << endl;
 	cout << "scg3\n";
+	cout << "_anomalyList.size = " << _anomalyList.size();
 	// remove nodes that don't appear in SCG
 	vector<string> removed;
 	for(auto& x: _anomalyList){
@@ -113,6 +121,11 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	for(size_t i = 0; i < removed.size(); ++i){
 		_anomalyList.erase(removed[i]);
 	}
+
+	// delete nodes with degree one
+	for(auto& x: _anomalyList)
+		degreeOneFilter(x.first);
+	cout << "_anomalyList.size() after deleting: " << _anomalyList.size();
 }
 /*
 void
