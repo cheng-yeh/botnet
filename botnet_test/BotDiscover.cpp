@@ -93,12 +93,16 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
 				if(_anomalyList[timeList[i][j][3]] -> pivot){
-					(_anomalyList[timeList[i][j][3]] -> out_list)[i].push_back(timeList[i][j][6]);
-					(_anomalyList[timeList[i][j][6]] -> in_list)[i].push_back(timeList[i][j][3]);
+					(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
+					(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
+					++_anomalyList[timeList[i][j][3]] -> interaction;
+					++_anomalyList[timeList[i][j][6]] -> interaction;
 				}
 				else if(_anomalyList[timeList[i][j][6]] -> pivot){
-					(_anomalyList[timeList[i][j][6]] -> out_list)[i].push_back(timeList[i][j][3]);
-					(_anomalyList[timeList[i][j][3]] -> in_list)[i].push_back(timeList[i][j][6]);
+					(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
+					(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
+					++_anomalyList[timeList[i][j][6]] -> interaction;
+					++_anomalyList[timeList[i][j][3]] -> interaction;
 				}
 			}
 		}
@@ -235,8 +239,8 @@ SCG_Node*
 BotDiscover::newNode(int& count)
 {
 	SCG_Node* ptr = new SCG_Node;
-	ptr -> in_list = vector< vector<string> >(_anomaly.size(), vector<string>());
-	ptr -> out_list = vector< vector<string> >(_anomaly.size(), vector<string>());
+	ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
+	ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
 	ptr -> id = count++;
 	return ptr;
 }
@@ -251,8 +255,8 @@ BotDiscover::deleteNode(SCG_Node*& ptr)
 double
 BotDiscover::mean(const string& i)
 {
-	const vector< vector<string> >& in = _anomalyList[i] -> in_list;
-	const vector< vector<string> >& out = _anomalyList[i] -> out_list;
+	const vector< set<string> >& in = _anomalyList[i] -> in_list;
+	const vector< set<string> >& out = _anomalyList[i] -> out_list;
 	double count = 0;
 	for(size_t k = 0; k < in.size(); ++k){
 		count += in[k].size();
@@ -264,8 +268,8 @@ BotDiscover::mean(const string& i)
 double
 BotDiscover::deviation(const string& i)
 {
-	const vector< vector<string> >& in = _anomalyList[i] -> in_list;
-	const vector< vector<string> >& out = _anomalyList[i] -> out_list;
+	const vector< set<string> >& in = _anomalyList[i] -> in_list;
+	const vector< set<string> >& out = _anomalyList[i] -> out_list;
 	double bar = mean(i);
 	double count = 0;
 	for(size_t k = 0; k < in.size(); ++k)
@@ -277,10 +281,10 @@ BotDiscover::deviation(const string& i)
 double
 BotDiscover::corelation_coefficient(const string& i, const string& j)
 {
-	const vector< vector<string> >& in_i = _anomalyList[i] -> in_list;
-	const vector< vector<string> >& out_i = _anomalyList[i] -> out_list;
-	const vector< vector<string> >& in_j = _anomalyList[j] -> in_list;
-	const vector< vector<string> >& out_j = _anomalyList[j] -> out_list;
+	const vector< set<string> >& in_i = _anomalyList[i] -> in_list;
+	const vector< set<string> >& out_i = _anomalyList[i] -> out_list;
+	const vector< set<string> >& in_j = _anomalyList[j] -> in_list;
+	const vector< set<string> >& out_j = _anomalyList[j] -> out_list;
 	double bar_i = mean(i);
 	double bar_j = mean(j);
 	double count = 0;
