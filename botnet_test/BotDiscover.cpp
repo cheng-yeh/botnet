@@ -23,8 +23,8 @@ BotDiscover::BotDiscover(const vector<bool>& anomaly, const vector< vector< vect
 {
 	_anomalyNumber = 0;
 	_anomaly = anomaly;
-	setPivot(timeList);
-	rebuild();
+	setSCG(timeList);
+	setSCG2();
 }
 
 BotDiscover::~BotDiscover()
@@ -48,18 +48,18 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		if(_anomaly[i]){
 			++_anomalyNumber;
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(!node.insert(make_pair(timeList[i][j][3], 1)).second){
+				if(!node.emplace(timeList[i][j][3], 1).second){
 					++node[timeList[i][j][3]];
 				}
 				else{
-					//if(!_anomalyList.insert(make_pair(timeList[i][j][3], newNode(false, count))).second)
+					//if(!_anomalyList.emplace(timeList[i][j][3], newNode(false, count)).second)
 					//	cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
-				if(!node.insert(make_pair(timeList[i][j][6], 1)).second){
+				if(!node.emplace(timeList[i][j][6], 1).second){
 					++node[timeList[i][j][6]];
 				}
 				else{
-					//if(!_anomalyList.insert(make_pair(timeList[i][j][6], newNode(false, count))).second)
+					//if(!_anomalyList.emplace(timeList[i][j][6], newNode(false, count)).second)
 					//	cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				
@@ -70,15 +70,15 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	}
 	
 	// select pivots
-	for(map<string, double>::iterator it = node.begin(); it != node.end(); ++it){
-		_anomalyList[it -> first] -> total_interaction = it -> second / _anomaly.size();
-		if(it -> second / _anomaly.size() > tau){
-			_anomalyList[it -> first] -> pivot = true;
+	for(auto& x: node){
+		//_anomalyList[x.first] -> total_interaction = x.second / _anomaly.size();
+		if(x.second / _anomaly.size() > tau){
+			_anomalyList[x.first] -> pivot = true;
 			//_pivot.insert(it -> first);
-			cout << it -> first << ": " << it -> second / _anomaly.size() << endl;
+			cout << x.first << ": " << x.second / _anomaly.size() << endl;
 		}
 		else{
-			_anomalyList[it -> first] -> pivot = false;
+			_anomalyList[x.first] -> pivot = false;
 		}
 	}
 	
@@ -86,56 +86,31 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(!node.insert(make_pair(timeList[i][j][3], 1)).second){
-					++node[timeList[i][j][3]];
+				if(_anomalyList[timeList[i][j][3]] -> pivot){
+					(_anomalyList[timeList[i][j][3]] -> out_list)[i].push_back(timeList[i][j][6]);
+					(_anomalyList[timeList[i][j][6]] -> in_list)[i].push_back(timeList[i][j][3]);
 				}
-				else{
-					//if(!_anomalyList.insert(make_pair(timeList[i][j][3], newNode(false, count))).second)
-					//	cout << "Error in BotDiscover::setTotalInteraction\n";
+				if(_anomalyList[timeList[i][j][6]] -> pivot){
+					(_anomalyList[timeList[i][j][6]] -> out_list)[i].push_back(timeList[i][j][3]);
+					(_anomalyList[timeList[i][j][3]] -> in_list)[i].push_back(timeList[i][j][6]);
 				}
-				if(!node.insert(make_pair(timeList[i][j][6], 1)).second){
-					++node[timeList[i][j][6]];
-				}
-				else{
-					//if(!_anomalyList.insert(make_pair(timeList[i][j][6], newNode(false, count))).second)
-					//	cout << "Error in BotDiscover::setTotalInteraction\n";
-				}
-				
-				//(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
-				//(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
 			}
 		}
 	}
 	
-	// construct SCG
-	int debug = 0;
-	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
-	cout << "scg.size() = " << scg.size() << endl;
-	cout << "SCGcheck\n";
-	_SCG = MatrixXd::Zero(scg.size(), scg.size());
-	cout << "SCGcheck2\n";
-	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
-	cout << "scg.size() = " << scg.size() << endl;
-	for(map<string, SCG_Node*>::iterator it1 = _scgList.begin(); it1 != _scgList.end(); ++it1){
-		cout << "\r" << debug;
-		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _scgList.end(); ++it2){
-			if(it1 == it2)continue;
-			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
-				++debug;
-				//if(debug % 10000 == 0)cout << "debug = " << debug;
-				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
-				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << _scgList.size() << endl;
-				_SCG(it1 -> second -> id, it2 -> second -> id) = 1;
-			}
+	// remove nodes that don't appear in SCG
+	vector<string> removed;
+	for(auto& x: _anomalyList){
+		if(mean(x.first) == 0){
+			// delete SCG_Node in heap
+			deleteNode(x.second);
+			removed.push_back(x.first);
 		}
 	}
-	cout << "SCG:\n";
-	for(size_t i = 0; i < _SCG.innerSize(); ++i){
-		for(size_t j = 0; j < _SCG.innerSize(); ++j)
-			cout << _SCG(i, j) << " ";
-		cout << endl;
+	// delete node in _anomalyList
+	for(size_t i = 0; i < removed.size(); ++i){
+		_anomalyList.erase(removed[i]);
 	}
-	
 }
 /*
 void
@@ -214,15 +189,13 @@ BotDiscover::setSCG2(const double tau)
 {
 	int debug = 0;
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
-	cout << "_scgList.size() = " << _scgList.size() << endl;
 	cout << "SCGcheck\n";
-	_SCG = MatrixXd::Zero(_scgList.size(), _scgList.size());
+	_SCG = MatrixXd::Zero(_anomalyList.size(), _anomalyList.size());
 	cout << "SCGcheck2\n";
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
-	cout << "_scgList.size() = " << _scgList.size() << endl;
-	for(map<string, SCG_Node*>::iterator it1 = _scgList.begin(); it1 != _scgList.end(); ++it1){
+	for(map<string, SCG_Node*>::iterator it1 = _anomalyList.begin(); it1 != _anomalyList.end(); ++it1){
 		cout << "\r" << debug;
-		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _scgList.end(); ++it2){
+		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
 			if(it1 == it2)continue;
 			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
 				++debug;
@@ -234,8 +207,8 @@ BotDiscover::setSCG2(const double tau)
 		}
 	}
 	cout << "SCG:\n";
-	for(size_t i = 0; i < _SCG.innerSize(); ++i){
-		for(size_t j = 0; j < _SCG.innerSize(); ++j)
+	for(unsigned i = 0; i < _SCG.innerSize(); ++i){
+		for(unsigned j = 0; j < _SCG.innerSize(); ++j)
 			cout << _SCG(i, j) << " ";
 		cout << endl;
 	}
@@ -244,31 +217,31 @@ BotDiscover::setSCG2(const double tau)
 bool
 BotDiscover::degreeOneFilter(string node)
 {
-	 return (_anomalyList[node] -> in_list.size() + _anomalyList[node] -> out_list.size() > 5) ? false : true;
+	 return (_anomalyList[node] -> in_list.size() + _anomalyList[node] -> out_list.size() > 2) ? false : true;
 }
 
 SCG_Node*
-BotDiscover::newNode(const bool& pvt, int& count)
+BotDiscover::newNode(int& count)
 {
 	SCG_Node* ptr = new SCG_Node;
-	ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
-	ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
+	ptr -> in_list = vector< vector<string> >(_anomaly.size(), vector<string>());
+	ptr -> out_list = vector< vector<string> >(_anomaly.size(), vector<string>());
 	ptr -> id = count++;
-	ptr -> pivot = pvt;
 	return ptr;
 }
 
 void
-BotDiscover::deleteNode()
+BotDiscover::deleteNode(SCG_Node*& ptr)
 {
-	
+	delete ptr;
+	ptr = 0;
 }
 
 double
 BotDiscover::mean(const string& i)
 {
-	const vector< set<string> >& in = _anomalyList[i] -> in_list;
-	const vector< set<string> >& out = _anomalyList[i] -> out_list;
+	const vector< vector<string> >& in = _anomalyList[i] -> in_list;
+	const vector< vector<string> >& out = _anomalyList[i] -> out_list;
 	double count = 0;
 	for(size_t k = 0; k < in.size(); ++k){
 		count += in[k].size();
@@ -280,8 +253,8 @@ BotDiscover::mean(const string& i)
 double
 BotDiscover::deviation(const string& i)
 {
-	const vector< set<string> >& in = _anomalyList[i] -> in_list;
-	const vector< set<string> >& out = _anomalyList[i] -> out_list;
+	const vector< vector<string> >& in = _anomalyList[i] -> in_list;
+	const vector< vector<string> >& out = _anomalyList[i] -> out_list;
 	double bar = mean(i);
 	double count = 0;
 	for(size_t k = 0; k < in.size(); ++k)
@@ -293,10 +266,10 @@ BotDiscover::deviation(const string& i)
 double
 BotDiscover::corelation_coefficient(const string& i, const string& j)
 {
-	const vector< set<string> >& in_i = _anomalyList[i] -> in_list;
-	const vector< set<string> >& out_i = _anomalyList[i] -> out_list;
-	const vector< set<string> >& in_j = _anomalyList[j] -> in_list;
-	const vector< set<string> >& out_j = _anomalyList[j] -> out_list;
+	const vector< vector<string> >& in_i = _anomalyList[i] -> in_list;
+	const vector< vector<string> >& out_i = _anomalyList[i] -> out_list;
+	const vector< vector<string> >& in_j = _anomalyList[j] -> in_list;
+	const vector< vector<string> >& out_j = _anomalyList[j] -> out_list;
 	double bar_i = mean(i);
 	double bar_j = mean(j);
 	double count = 0;
@@ -304,22 +277,4 @@ BotDiscover::corelation_coefficient(const string& i, const string& j)
 		count += (out_i[k].size() + in_i[k].size() - bar_i) * (out_j[k].size() + in_j[k].size() - bar_j);
 	
 	return count / ( (_anomalyNumber - 1) * deviation(i) * deviation(j) );
-}
-
-double
-mean(const string& i)
-{
-	
-}
-
-double
-deviation(const string& i)
-{
-
-}
-
-double
-corelation_coefficient(const string& i, const string& j)
-{
-
 }

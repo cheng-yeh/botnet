@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	if(ext1 == ".binetflow")
 		R -> ReadFromBinetflow(fileName1);
 		
-	clock_t startTime = clock();
+	//clock_t startTime = clock();
 	
 	GraphDetector GD;
 	R -> rawToTimelist(GD._timeList);
@@ -54,6 +54,6 @@ int main(int argc, char** argv)
 	BotDiscover BD(GD.getAnomaly(), GD.getTimeList());
 	cout << "Start discovering\n";
 	cout << "GD.getTimeList() = " << GD.getTimeList().size() << endl;
-	BD.setSCG();
+	//BD.setSCG2();
 	return 0;
 }

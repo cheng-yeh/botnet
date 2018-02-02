@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <unordered_set>
+#include <set>
 #include <Eigen/Dense>
 
 #include "util.h"
@@ -28,28 +29,28 @@ public:
 	
 	// set function
 	void setSCG(const vector< vector< vector<string> > >& timeList, const double tau = 30);
-	void rebuild();
+	//void rebuild();
 	void setSCG2(const double tau = 0.999);
 
 private:
 	bool degreeOneFilter(string node);
 	// node operation
-	SCG_Node* newNode(const bool& pvt, int& count);
-	void deleteNode();
+	SCG_Node* newNode(int& count);
+	void deleteNode(SCG_Node*& ptr);
 	// statistic computation for SCGNode
 	double mean(const string& i);
 	double deviation(const string& i);
 	double corelation_coefficient(const string& i, const string& j);
 	// statistic computation for map
-	double mean(const string& i, const map<string, vector<double> > scg);
-	double deviation(const string& i, const map<string, vector<double> > scg);
-	double corelation_coefficient(const string& i, const string& j, const map<string, vector<double> > scg);
+	//double mean(const string& i, const map<string, vector<double> > scg);
+	//double deviation(const string& i, const map<string, vector<double> > scg);
+	//double corelation_coefficient(const string& i, const string& j, const map<string, vector<double> > scg);
 
 private:
 	vector<bool> _anomaly;
 	int _anomalyNumber;
 	unordered_set<string> _pivot;
-	//map<string, SCG_Node*> _anomalyList;
+	map<string, SCG_Node*> _anomalyList;
 	map<string, SCG_Node*> _scgList;
 	//vector< vector<double> > _total_interaction;
 	MatrixXd _SCG;
