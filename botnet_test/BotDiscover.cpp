@@ -24,6 +24,7 @@ BotDiscover::BotDiscover(const vector<bool>& anomaly, const vector< vector< vect
 	_anomalyNumber = 0;
 	_anomaly = anomaly;
 	setSCG(timeList);
+	cout << "Finish setSCG();\n";
 	setSCG2();
 }
 
@@ -52,15 +53,15 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 					++node[timeList[i][j][3]];
 				}
 				else{
-					//if(!_anomalyList.emplace(timeList[i][j][3], newNode(false, count)).second)
-					//	cout << "Error in BotDiscover::setTotalInteraction\n";
+					if(!_anomalyList.emplace(timeList[i][j][3], newNode(false, count)).second)
+						cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				if(!node.emplace(timeList[i][j][6], 1).second){
 					++node[timeList[i][j][6]];
 				}
 				else{
-					//if(!_anomalyList.emplace(timeList[i][j][6], newNode(false, count)).second)
-					//	cout << "Error in BotDiscover::setTotalInteraction\n";
+					if(!_anomalyList.emplace(timeList[i][j][6], newNode(false, count)).second)
+						cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				
 				//(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
@@ -68,20 +69,21 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 			}
 		}
 	}
-	
 	// select pivots
 	for(auto& x: node){
 		//_anomalyList[x.first] -> total_interaction = x.second / _anomaly.size();
 		if(x.second / _anomaly.size() > tau){
-			_anomalyList[x.first] -> pivot = true;
-			//_pivot.insert(it -> first);
-			cout << x.first << ": " << x.second / _anomaly.size() << endl;
+			if(_anomalyList.find(x.first) != _anomalyList.end())
+				_anomalyList[x.first] -> pivot = true;
+			else cout << "Error in BotDiscover:: select pivots\n";
 		}
 		else{
-			_anomalyList[x.first] -> pivot = false;
+			if(_anomalyList.find(x.first) != _anomalyList.end())
+				_anomalyList[x.first] -> pivot false;
+			else cout << "Error in BotDiscover:: select pivots\n";
 		}
 	}
-	
+	cout << "scg2\n";
 	// compute interaction with pivots
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
@@ -97,7 +99,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 			}
 		}
 	}
-	
+	cout << "scg3\n";
 	// remove nodes that don't appear in SCG
 	vector<string> removed;
 	for(auto& x: _anomalyList){
@@ -117,10 +119,6 @@ void
 BotDiscover::rebuild()
 {
 	int count = 0;
-	for(size_t i = 0; i < _pivot.size(); ++i){
-		if(_pivot[i]){
-			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(node.insert(make_pair(timeList[i][j][3], 1)).second){
 				
 				}
 				else{
