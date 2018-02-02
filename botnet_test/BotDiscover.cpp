@@ -121,14 +121,19 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 			removed.push_back(x.first);
 		}
 	}
+	
 	// delete node in _anomalyList
-	for(size_t i = 0; i < removed.size(); ++i){
-		_anomalyList.erase(removed[i]);
-	}
-
+	trimAnomalyList(removed);
+	
 	// delete nodes with degree one
 	for(auto& x: _anomalyList)
-		if(degreeOneFilter(x.first))
+		if(degreeOneFilter(x.first)){
+			deleteNode(x.second);
+			removed.push_back(x.first);
+		}
+	
+	// delete node in _anomalyList
+	trimAnomalyList(removed);
 			
 	cout << "_anomalyList.size() after deleting: " << _anomalyList.size();
 }
@@ -234,6 +239,15 @@ bool
 BotDiscover::degreeOneFilter(string node)
 {
 	 return (_anomalyList[node] -> in_list.size() + _anomalyList[node] -> out_list.size() > 4) ? false : true;
+}
+
+void
+BotDiscover::trimAnomalyList(vector<string>& removed)
+{
+	for(size_t i = 0; i < removed.size(); ++i){
+		_anomalyList.erase(removed[i]);
+	}
+	removed.clear();
 }
 
 SCG_Node*

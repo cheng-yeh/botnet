@@ -34,6 +34,7 @@ public:
 
 private:
 	bool degreeOneFilter(string node);
+	void trimAnomalyList(vector<string>& removed);
 	// node operation
 	SCG_Node* newNode(int& count);
 	void deleteNode(SCG_Node*& ptr);
