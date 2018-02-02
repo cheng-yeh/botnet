@@ -73,8 +73,9 @@ BotDiscover::setPivot(const vector< vector< vector<string> > >& timeList, const 
 			_pivot.insert(it -> first);
 			cout << it -> first << ": " << it -> second / _anomaly.size() << endl;
 		}
-		else
+		else{
 			//_anomalyList[it -> first] -> pivot = false;
+		}
 	}
 }
 
