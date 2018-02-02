@@ -27,19 +27,23 @@ public:
 	~BotDiscover();
 	
 	// set function
-	void setPivot(const vector< vector< vector<string> > >& timeList, const double tau = 30);
+	void setSCG(const vector< vector< vector<string> > >& timeList, const double tau = 30);
 	void rebuild();
-	void setSCG(const double tau = 0.999);
+	void setSCG2(const double tau = 0.999);
 
 private:
 	bool degreeOneFilter(string node);
 	// node operation
 	SCG_Node* newNode(const bool& pvt, int& count);
 	void deleteNode();
-	// statistic computation
+	// statistic computation for SCGNode
 	double mean(const string& i);
 	double deviation(const string& i);
 	double corelation_coefficient(const string& i, const string& j);
+	// statistic computation for map
+	double mean(const string& i, const map<string, vector<double> > scg);
+	double deviation(const string& i, const map<string, vector<double> > scg);
+	double corelation_coefficient(const string& i, const string& j, const map<string, vector<double> > scg);
 
 private:
 	vector<bool> _anomaly;
