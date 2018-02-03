@@ -23,6 +23,8 @@ Writer::~Writer(void)
 void
 Writer::GroundTruthWriter(const vector< vector<string> >& data, const vector<string>& bot, string& filename)
 {
+	set<string> related;
+	fix!
 	cout << "writer1\n";
 	ofstream of;
 	of.open(filename);
