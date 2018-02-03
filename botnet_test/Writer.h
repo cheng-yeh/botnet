@@ -20,12 +20,12 @@ class Writer
 {
 public:
 	Writer(void);
-	Writer(const auto& data, string& filename);
+	Writer(const string& data, string& filename);
 	~Writer(void);
 	
 	// multiple writers
 	void GroundTruthWriter(const vector< vector<string> >& data, const string& bot, string& filename);
-	void SADWriter(const auto& data, string& filename);
+	void SADWriter(const string& data, string& filename);
 	
 private:
 

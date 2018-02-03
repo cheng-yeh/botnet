@@ -34,22 +34,20 @@ int main(int argc, char** argv)
 			/* These options don’t set a flag.
 			   We distinguish them by their indices. */
 			{"TotalList",   required_argument, 0, 'a'},
-			{"AllBot",      no_argument,       0, 'b'},
-			{"BotOne",         required_argument, 0, 'c'},
+			{"AllBot",      required_argument, 0, 'b'},
+			{"BotOne",      required_argument, 0, 'c'},
 			{"WindowNum",   required_argument, 0, 'd'},
-			{"OutputFile",  no_argument,       0, 'e'},
+			{"OutputFile",  required_argument, 0, 'e'},
 			{"Help",        no_argument,       0, 'h'},
 			{0, 0, 0, 0}
 		};
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
-
-		c = getopt_long (argc, argv, "acb:d:", long_options, &option_index);
+		c = getopt_long (argc, argv, "ha:b:c:d:", long_options, &option_index);
 
 		/* Detect the end of the options. */
 		if (c == -1)
 			break;
-
 		switch (c)
 		{
 			case 0:
@@ -96,7 +94,6 @@ int main(int argc, char** argv)
 				abort ();
 		}
 	}
-	
 	Reader* R = new Reader();
 	string ext1 = args.totalList.substr(args.totalList.rfind('.'), args.totalList.length() - args.totalList.rfind('.'));
 
