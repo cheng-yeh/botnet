@@ -21,6 +21,15 @@ using Eigen::VectorXd;
 
 #define PRECISION 1e-7
 
+// struct for global arguments
+typedef struct globalArg_t{
+	string totalList;  		// mandatory
+	string botList;    		// optional
+	string botOne;     		// mandatory
+	size_t windowNumber;	// mandatory
+	string outputFile; 		// optional
+} globalArg;
+
 //----------------------------------------------------------------
 //			special time format class
 //----------------------------------------------------------------

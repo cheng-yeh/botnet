@@ -12,7 +12,7 @@
 using namespace std;
 using Eigen::MatrixXd;
 
-extern size_t window_num;
+extern globalArg args;
 
 BotDiscover::BotDiscover()
 {

@@ -10,7 +10,7 @@
 #include <algorithm>
 using namespace std;
 
-extern size_t window_num;
+extern globalArg args;
 
 Reader::Reader(void)
 {
@@ -73,13 +73,13 @@ Reader::rawToTimelist(vector< vector< vector<string> > >& _timeList)
 	double delta = end - begin;
 	cout.precision(10);
 	cout << "The total duration is " << delta << " seconds\n";
-	if(window_num == 0)cout << "Need to assign number of windows\n";
-	else cout << "The window size is " << delta / window_num << " seconds\n";
+	if(args.windowNumber == 0)cout << "Need to assign number of windows\n";
+	else cout << "The window size is " << delta / args.windowNumber << " seconds\n";
 	
-	double window_size = delta / window_num;
+	double window_size = delta / args.windowNumber;
 	
 	size_t j = 0;
-	for(size_t i = 0; i < window_num; ++i){
+	for(size_t i = 0; i < args.windowNumber; ++i){
 		vector< vector<string> > temp;
 
 		for(; j < raw_data.size(); ++j){
