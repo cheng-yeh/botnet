@@ -86,24 +86,37 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
+cout << "check1\n";
 				if(_anomalyList.find(timeList[i][j][3]) != _anomalyList.end()){
+cout << "check2\n";
 					if(_anomalyList[timeList[i][j][3]] -> pivot){
-						if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end())
+cout << "check3\n";
+						if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
 							_anomalyList.emplace(timeList[i][j][6], newNode());
+							_anomalyList[timeList[i][j][6]] -> pivot = false;
+						}
+cout << "check4\n";
 						(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
 						(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
 						++_anomalyList[timeList[i][j][3]] -> interaction[i];
 						++_anomalyList[timeList[i][j][6]] -> interaction[i];
+cout << "check5\n";
 					}
 				}
 				else if(_anomalyList.find(timeList[i][j][6]) != _anomalyList.end()){
+cout << "check6\n";
 					if(_anomalyList[timeList[i][j][6]] -> pivot){
-						if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end())
+cout << "check7\n";
+						if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
 							_anomalyList.emplace(timeList[i][j][3], newNode());
+							_anomalyList[timeList[i][j][3]] -> pivot = false;
+						}
+cout << "check8\n";
 						(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
 						(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
 						++_anomalyList[timeList[i][j][6]] -> interaction[i];
 						++_anomalyList[timeList[i][j][3]] -> interaction[i];
+cout << "check9\n";
 					}
 				}
 			}
