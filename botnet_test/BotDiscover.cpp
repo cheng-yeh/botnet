@@ -135,7 +135,12 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	
 	// delete node in _anomalyList
 	trimAnomalyList(removed);
-			
+	
+	// refresh id in _anomalyList
+	count = 0;
+	for(auto& x: _anomalyList)
+		x.second -> id = count++;
+		
 	cout << "_anomalyList.size() after deleting: " << _anomalyList.size();
 }
 /*
@@ -216,14 +221,14 @@ BotDiscover::setSCG2(const double tau)
 	cout << "SCGcheck2\n";
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
 	for(map<string, SCG_Node*>::iterator it1 = _anomalyList.begin(); it1 != _anomalyList.end(); ++it1){
-		cout << "\r" << debug;
+		if(debug % 10 == 0)cout << ++debug << endl;	
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
 			if(it1 == it2)continue;
 			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
-				++debug;
+				//++debug;
 				//if(debug % 10000 == 0)cout << "debug = " << debug;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
-				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << _scgList.size() << endl;
+				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << endl;
 				_SCG(it1 -> second -> id, it2 -> second -> id) = 1;
 			}
 		}

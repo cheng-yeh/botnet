@@ -106,8 +106,8 @@ int main(int argc, char** argv)
 		R -> ReadFromBinetflow(args.totalList);
 		
 	// write the correct answer
-	Writer W;
-	W.GroundTruthWriter( R -> getRawData(), args.botOne, args.outputFile );
+	//Writer W;
+	//W.GroundTruthWriter( R -> getRawData(), args.botOne, args.outputFile );
 	
 	GraphDetector GD;
 	R -> rawToTimelist(GD._timeList);
