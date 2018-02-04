@@ -86,7 +86,7 @@ struct SCG_Node
 {
 	vector< set<string> > in_list;
 	vector< set<string> > out_list;
-	double interaction = 0;
+	vector<double> interaction;
 	bool pivot;
 	size_t id;
 };
