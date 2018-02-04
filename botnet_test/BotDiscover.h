@@ -30,7 +30,7 @@ public:
 	// set function
 	void setSCG(const vector< vector< vector<string> > >& timeList, const double tau = 20);
 	//void rebuild();
-	void setSCG2(const double tau = 0.999);
+	void setSCG2(const double tau = 0.0);
 
 private:
 	bool degreeOneFilter(string node);

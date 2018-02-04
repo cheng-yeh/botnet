@@ -80,43 +80,35 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 			cout << x.first << " ";
 			cout << x.second / _anomalyNumber << endl;
 		}
+		if(x.first == "147.32.84.165")cout << "The bot: " << x.second / _anomalyNumber << endl;
 	}
 	cout << "scg2\n";
 	// compute interactions with pivots
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-cout << "check1\n";
 				if(_anomalyList.find(timeList[i][j][3]) != _anomalyList.end()){
-cout << "check2\n";
 					if(_anomalyList[timeList[i][j][3]] -> pivot){
-cout << "check3\n";
 						if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
 							_anomalyList.emplace(timeList[i][j][6], newNode());
 							_anomalyList[timeList[i][j][6]] -> pivot = false;
 						}
-cout << "check4\n";
 						(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
 						(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
-						++_anomalyList[timeList[i][j][3]] -> interaction[i];
-						++_anomalyList[timeList[i][j][6]] -> interaction[i];
-cout << "check5\n";
+						++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
+						++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
 					}
 				}
 				else if(_anomalyList.find(timeList[i][j][6]) != _anomalyList.end()){
-cout << "check6\n";
 					if(_anomalyList[timeList[i][j][6]] -> pivot){
-cout << "check7\n";
 						if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
 							_anomalyList.emplace(timeList[i][j][3], newNode());
 							_anomalyList[timeList[i][j][3]] -> pivot = false;
 						}
-cout << "check8\n";
 						(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
 						(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
-						++_anomalyList[timeList[i][j][6]] -> interaction[i];
-						++_anomalyList[timeList[i][j][3]] -> interaction[i];
-cout << "check9\n";
+						++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
+						++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
 					}
 				}
 			}
@@ -227,11 +219,11 @@ BotDiscover::setSCG2(const double tau)
 	cout << "SCGcheck2\n";
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
 	for(map<string, SCG_Node*>::iterator it1 = _anomalyList.begin(); it1 != _anomalyList.end(); ++it1){
-		if(debug % 10 == 0)cout << ++debug << endl;	
+		if(1)cout << debug << endl;	
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
 			if(it1 == it2)continue;
 			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
-				//++debug;
+				++debug;
 				//if(debug % 10000 == 0)cout << "debug = " << debug;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
 				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << endl;
@@ -275,7 +267,7 @@ BotDiscover::newNode()
 	SCG_Node* ptr = new SCG_Node;
 	ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
 	ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
-	ptr -> interaction = vector<double>(0, args.windowNumber);
+	ptr -> interaction = vector<double>(args.windowNumber, 0);
 	return ptr;
 }
 
@@ -291,9 +283,10 @@ BotDiscover::mean(const string& i)
 {
 	const vector<double>& inter = _anomalyList[i] -> interaction;
 	double count = 0;
-	for(size_t k = 0; k < inter.size(); ++k){
-		count += inter[k];
-	}
+	for(size_t k = 0; k < inter.size(); ++k)
+		if(_anomaly[k])
+			count += inter[k];
+	
 	return count / _anomalyNumber;
 }
 
@@ -304,7 +297,8 @@ BotDiscover::deviation(const string& i)
 	double bar = mean(i);
 	double count = 0;
 	for(size_t k = 0; k < inter.size(); ++k)
-		count += pow((inter[k] - bar), 2);
+		if(_anomaly[k])
+			count += pow((inter[k] - bar), 2);
 	
 	return sqrt( count / (_anomalyNumber - 1) );
 }
@@ -318,7 +312,8 @@ BotDiscover::corelation_coefficient(const string& i, const string& j)
 	double bar_j = mean(j);
 	double count = 0;
 	for(size_t k = 0; k < inter_i.size(); ++k)
-		count += (inter_i[k] - bar_i) * (inter_j[k] - bar_j);
+		if(_anomaly[k])
+			count += (inter_i[k] - bar_i) * (inter_j[k] - bar_j);
 	
 	return count / ( (_anomalyNumber - 1) * deviation(i) * deviation(j) );
 }
