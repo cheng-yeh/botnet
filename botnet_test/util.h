@@ -23,11 +23,11 @@ using Eigen::VectorXd;
 
 // struct for global arguments
 typedef struct globalArg_t{
-	string totalList;  		// mandatory
-	string botList;    		// optional
-	string botOne;     		// mandatory
-	size_t windowNumber;	// mandatory
-	string outputFile; 		// optional
+	string 			totalList;  	// mandatory
+	string 			botList;   		// optional
+	vector<string> 	botOne;     	// mandatory
+	size_t 			windowNumber;	// mandatory
+	string 			outputFile; 	// optional
 } globalArg;
 
 //----------------------------------------------------------------

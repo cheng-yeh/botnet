@@ -25,8 +25,8 @@ int main(int argc, char** argv)
 	// Using Getopt to parse commands.
 	// Reference: 
 	// https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html#Getopt-Long-Option-Example
-	int c;
-	
+	int c, pos = 0;
+	string opt;
 	while (1)
 	{
 		static struct option long_options[] =
@@ -69,7 +69,12 @@ int main(int argc, char** argv)
 				break;
 
 			case 'c':
-				args.botOne = optarg;
+				opt = optarg;
+				while(opt.find(",", pos) != string::npos){
+					args.botOne.push_back(opt.substr(pos, opt.find(",", pos) - 1));
+					cout << "check:" << opt.substr(pos, opt.find(",", pos) - 1);
+					pos = opt.find(",", pos) + 1;
+				}
 				break;
 			
 			case 'd':
@@ -81,9 +86,9 @@ int main(int argc, char** argv)
 				break;
 			
 			case 'h':
-				cout << "Usage: <--TotalList <string fileName>>\n       [--BotList [string fileName]]\n"     
-				     << "       <--WindowNumber <int window_number>>\n       [--OutputFile <string outputFile>]\n"
-				     << "       [--Help]\n";
+				cout << "Usage: <--TotalList <fileName>>\n       <--WindowNumber <window_number>>\n"     
+				     << "       <--BotOne <bot1_IP,bot2_IP,...>>\n       [--BotList [fileName]]\n"
+				     << "       [--OutputFile <outputFile>]\n       [--Help]\n";
 				break;
 				
 			case '?':

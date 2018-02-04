@@ -24,25 +24,27 @@ void
 Writer::GroundTruthWriter(const vector< vector<string> >& data, const vector<string>& bot, string& filename)
 {
 	set<string> related;
-	fix!
-	cout << "writer1\n";
 	ofstream of;
 	of.open(filename);
-	cout << "writer2\n";
-	of << bot << "\n";
-	cout << bot << "\n";
-	for(size_t i = 0; i < data.size(); ++i){
-		if(data[i][3] == bot && data[i][6] != bot){
-			of << data[i][6] << "\n";
-			cout << data[i][6] << "\n";
-		}
-		else if(data[i][3] != bot && data[i][6] == bot){
-			of << data[i][3] << "\n";
-			cout << data[i][3] << "\n";
+	
+	for(size_t b = 0; b < bot.size(); ++b){
+		for(size_t i = 0; i < data.size(); ++i){
+			if(data[i][3] == bot[b] && data[i][6] != bot[b])
+				related.insert(data[i][6]);
+
+			else if(data[i][3] != bot[b] && data[i][6] == bot[b])
+				related.insert(data[i][3]);
 		}
 	}
-	cout << "writer3\n";
+	
+	for(size_t b = 0; b < bot.size(); ++b)
+		of << bot[b] << "\n";
+	for(auto& x: related)
+		of << x << "\n";
 	of.close();
+	
+	cout << "size fo bot:" << bot.size() << endl;
+	cout << "size of related bot:" << related.size() << endl;
 }
 
 void
