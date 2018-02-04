@@ -259,6 +259,8 @@ BotDiscover::setSCG2(const double tau)
 			cout << _SCG[i][j] << " ";
 		cout << endl;
 	}
+	cout << "original size = " << temp_SCG.size() << endl;
+	cout << "final size = " << nonempty.size() << endl;
 }
 
 bool
