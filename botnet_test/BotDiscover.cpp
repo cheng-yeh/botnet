@@ -82,7 +82,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		}
 	}
 	cout << "scg2\n";
-	// compute interaction with pivots
+	// compute interactions with pivots
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
