@@ -53,15 +53,15 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 					++node[timeList[i][j][3]];
 				}
 				else{
-					if(!_anomalyList.emplace(timeList[i][j][3], newNode(count)).second)
-						cout << "Error in BotDiscover::setTotalInteraction\n";
+					//if(!_anomalyList.emplace(timeList[i][j][3], newNode(count)).second)
+					//	cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				if(!node.emplace(timeList[i][j][6], 1).second){
 					++node[timeList[i][j][6]];
 				}
 				else{
-					if(!_anomalyList.emplace(timeList[i][j][6], newNode(count)).second)
-						cout << "Error in BotDiscover::setTotalInteraction\n";
+					//if(!_anomalyList.emplace(timeList[i][j][6], newNode(count)).second)
+					//	cout << "Error in BotDiscover::setTotalInteraction\n";
 				}
 				
 				//(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
@@ -74,17 +74,11 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	for(auto& x: node){
 		//_anomalyList[x.first] -> total_interaction = x.second / _anomaly.size();
 		if(x.second / _anomalyNumber > tau){
-			if(_anomalyList.find(x.first) != _anomalyList.end()){
-				_anomalyList[x.first] -> pivot = true;
-				cout << x.first << " ";
-				cout << x.second / _anomalyNumber << endl;
-			}
-			else cout << "Error in BotDiscover:: select pivots\n";
-		}
-		else{
-			if(_anomalyList.find(x.first) != _anomalyList.end())
-				_anomalyList[x.first] -> pivot = false;
-			else cout << "Error in BotDiscover:: select pivots\n";
+			if(!_anomalyList.emplace(x.first, newNode()).second)
+				cout << "Error in BotDiscover::setpivot\n";
+			_anomalyList[x.first] -> pivot = true;
+			cout << x.first << " ";
+			cout << x.second / _anomalyNumber << endl;
 		}
 	}
 	cout << "scg2\n";
@@ -92,40 +86,39 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(_anomalyList[timeList[i][j][3]] -> pivot){
-					(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
-					(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
-					++_anomalyList[timeList[i][j][3]] -> interaction[i];
-					++_anomalyList[timeList[i][j][6]] -> interaction[i];
+				if(_anomalyList.find(timeList[i][j][3]) != _anomalyList.end()){
+					if(_anomalyList[timeList[i][j][3]] -> pivot){
+						if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end())
+							_anomalyList.emplace(timeList[i][j][6], newNode());
+						(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
+						(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
+						++_anomalyList[timeList[i][j][3]] -> interaction[i];
+						++_anomalyList[timeList[i][j][6]] -> interaction[i];
+					}
 				}
-				else if(_anomalyList[timeList[i][j][6]] -> pivot){
-					(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
-					(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
-					++_anomalyList[timeList[i][j][6]] -> interaction[i];
-					++_anomalyList[timeList[i][j][3]] -> interaction[i];
+				else if(_anomalyList.find(timeList[i][j][6]) != _anomalyList.end()){
+					if(_anomalyList[timeList[i][j][6]] -> pivot){
+						if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end())
+							_anomalyList.emplace(timeList[i][j][3], newNode());
+						(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
+						(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
+						++_anomalyList[timeList[i][j][6]] -> interaction[i];
+						++_anomalyList[timeList[i][j][3]] -> interaction[i];
+					}
 				}
 			}
 		}
 	}
+	
+	// print pivots and their total interaction
 	for(auto& x: _anomalyList)
 		if(x.second -> pivot)
 			cout << x.first << ":" << mean(x.first) << endl;
 	cout << "scg3\n";
 	cout << "_anomalyList.size = " << _anomalyList.size();
-	// remove nodes that don't appear in SCG
+
+	// delete nodes with degree less or equal to one
 	vector<string> removed;
-	for(auto& x: _anomalyList){
-		if(mean(x.first) == 0){
-			// delete SCG_Node in heap
-			deleteNode(x.second);
-			removed.push_back(x.first);
-		}
-	}
-	
-	// delete node in _anomalyList
-	trimAnomalyList(removed);
-	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
-	// delete nodes with degree one
 	for(auto& x: _anomalyList){
 		if(degreeOneFilter(x.first)){
 			deleteNode(x.second);
@@ -264,13 +257,12 @@ BotDiscover::trimAnomalyList(vector<string>& removed)
 }
 
 SCG_Node*
-BotDiscover::newNode(int& count)
+BotDiscover::newNode()
 {
 	SCG_Node* ptr = new SCG_Node;
 	ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
 	ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
 	ptr -> interaction = vector<double>(0, args.windowNumber);
-	ptr -> id = count++;
 	return ptr;
 }
 

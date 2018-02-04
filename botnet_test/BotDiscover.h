@@ -36,7 +36,7 @@ private:
 	bool degreeOneFilter(string node);
 	void trimAnomalyList(vector<string>& removed);
 	// node operation
-	SCG_Node* newNode(int& count);
+	SCG_Node* newNode();
 	void deleteNode(SCG_Node*& ptr);
 	// statistic computation for SCGNode
 	double mean(const string& i);
