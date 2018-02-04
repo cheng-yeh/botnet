@@ -215,9 +215,9 @@ BotDiscover::setSCG2(const double tau)
 	int debug = 0;
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
 	cout << "SCGcheck\n";
-	_SCG = MatrixXd::Zero(_anomalyList.size(), _anomalyList.size());
-	cout << "SCGcheck2\n";
-	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
+	vector< vector<double> > temp_SCG = vector< vector<double> >(_anomalyList.size(), vector<double>(_anomalyList.size(), 0));
+	
+	// construct SCG with respect to tau(threshold)
 	for(map<string, SCG_Node*>::iterator it1 = _anomalyList.begin(); it1 != _anomalyList.end(); ++it1){
 		if(1)cout << debug << endl;	
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
@@ -227,14 +227,36 @@ BotDiscover::setSCG2(const double tau)
 				//if(debug % 10000 == 0)cout << "debug = " << debug;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
 				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << endl;
-				_SCG(it1 -> second -> id, it2 -> second -> id) = 1;
+				temp_SCG[it1 -> second -> id][it2 -> second -> id] = 1;
+				temp_SCG[it2 -> second -> id][it1 -> second -> id] = 1;
 			}
 		}
 	}
+	
+	// record non-empty row and column
+	vector<size_t> nonempty;
+	for(size_t i = 0; i < temp_SCG.size(); ++i){
+		int count = 0;
+		for(size_t j = 0; j < temp_SCG.size(); ++j){
+			count += temp_SCG[i][j];
+		}
+		if(count)nonempty.push_back(i);
+	}
+	
+	cout << "final size = " << nonempty.size() << endl;
+	
+	// construct final SCG
+	_SCG = vector< vector<double> >(nonempty.size(), vector<double>(nonempty.size(), 0));
+	for(size_t i = 0; i < _SCG.size(); ++i){
+		for(size_t j = 0; j < _SCG.size(); ++j){
+			_SCG[i][j] = temp_SCG[nonempty[i]][nonempty[j]];
+		}
+	}
+	
 	cout << "SCG:\n";
-	for(unsigned i = 0; i < _SCG.innerSize(); ++i){
-		for(unsigned j = 0; j < _SCG.innerSize(); ++j)
-			cout << _SCG(i, j) << " ";
+	for(size_t i = 0; i < _SCG.size(); ++i){
+		for(size_t j = 0; j < _SCG.size(); ++j)
+			cout << _SCG[i][j] << " ";
 		cout << endl;
 	}
 }

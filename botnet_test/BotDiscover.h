@@ -54,5 +54,6 @@ private:
 	map<string, SCG_Node*> _anomalyList;
 	//map<string, SCG_Node*> _scgList;
 	//vector< vector<double> > _total_interaction;
-	MatrixXd _SCG;
+	//MatrixXd _SCG;
+	vector< vector<double> > _SCG;
 };
