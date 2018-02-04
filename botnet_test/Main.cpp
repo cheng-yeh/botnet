@@ -71,9 +71,12 @@ int main(int argc, char** argv)
 			case 'c':
 				opt = optarg;
 				while(opt.find(",", pos) != string::npos){
-					args.botOne.push_back(opt.substr(pos, opt.find(",", pos) - 1));
-					cout << "check:" << opt.substr(pos, opt.find(",", pos) - 1);
+					//args.botOne.push_back(opt.substr(pos, opt.find(",", pos)));
+					cout << "check:" << opt.substr(pos, opt.find(",", pos)) << endl;
 					pos = opt.find(",", pos) + 1;
+					cout << "check2:" << pos << endl;
+					cout << "check3:" << opt.find(",", 0) << endl;
+					cout << "check4:" << opt.find(",", pos) << endl;
 				}
 				break;
 			
