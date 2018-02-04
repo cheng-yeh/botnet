@@ -1,1 +1,5 @@
 # botnet
+## Usage
+```
+usage: ./botnet 
+```
