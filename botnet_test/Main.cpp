@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	// Using Getopt to parse commands.
 	// Reference: 
 	// https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html#Getopt-Long-Option-Example
-	int c, pos = 0;
+	int c, pos = 0, mandatory = 0;
 	string opt;
 	while (1)
 	{
@@ -61,6 +61,7 @@ int main(int argc, char** argv)
 				break;
 
 			case 'a':
+				++mandatory;
 				args.totalList = optarg;
 				break;
 
@@ -78,6 +79,7 @@ int main(int argc, char** argv)
 				break;
 			
 			case 'd':
+				++mandatory;
 				args.windowNumber = atoi(optarg);
 				break;
 				
@@ -87,7 +89,7 @@ int main(int argc, char** argv)
 			
 			case 'h':
 				cout << "Usage: <--TotalList <fileName>>\n       <--WindowNumber <window_number>>\n"     
-				     << "       <--BotOne <bot1_IP,bot2_IP,...>>\n       [--BotList [fileName]]\n"
+				     << "       [--BotOne <bot1_IP,bot2_IP,...>]\n       [--BotList <fileName>]\n"
 				     << "       [--OutputFile <outputFile>]\n       [--Help]\n";
 				break;
 				
@@ -98,6 +100,10 @@ int main(int argc, char** argv)
 			default:
 				abort ();
 		}
+	}
+	if(mandatory != 2){
+		cout << "Error! Both --TotalList and --WindowNumber need to be specified!\n";
+		return 1;
 	}
 	Reader* R = new Reader();
 	string ext1 = args.totalList.substr(args.totalList.rfind('.'), args.totalList.length() - args.totalList.rfind('.'));
