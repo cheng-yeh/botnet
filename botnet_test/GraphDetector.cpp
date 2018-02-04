@@ -72,7 +72,7 @@ GraphDetector::timelistToIntergraph(){
 // s1 for the number of samples from the k interaction graphs
 // s2 for the number of samples from each interaction graph
 void
-GraphDetector::selectModel(const int s1,const int s2)
+GraphDetector::selectModel(const size_t s1,const size_t s2)
 {
 	// sampling
 	vector<size_t> sample;

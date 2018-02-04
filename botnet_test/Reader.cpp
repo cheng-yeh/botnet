@@ -50,7 +50,7 @@ Reader::ReadFromBinetflow(const std::string& fname)
 			end = StrGetTok(buff, tok, pos, ',');
 		}
 		if(length == -1)length = data.size();
-		if(length != data.size()){
+		if(length != int(data.size())){
 			cerr << "Format Error!\n";
 			return;
 		}
@@ -85,7 +85,7 @@ Reader::rawToTimelist(vector< vector< vector<string> > >& _timeList)
 		for(; j < raw_data.size(); ++j){
 			TimeKey key = TimeKey(raw_data[j][0]);
 
-			if(int( (key - begin) / window_size) == i){
+			if(size_t( (key - begin) / window_size) == i){
 				temp.push_back(raw_data[j]);
 			}
 			else{

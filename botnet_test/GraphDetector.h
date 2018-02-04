@@ -34,7 +34,7 @@ public:
 	void timelistToIntergraph();
 	
 	// procedures for detection
-	void selectModel(const int s1 = 20,const int s2 = 40);
+	void selectModel(const size_t s1 = 20, const size_t s2 = 40);
 	void detect(vector<size_t>& anomaly);
 	
 	// public get function

@@ -28,6 +28,8 @@ typedef struct globalArg_t{
 	vector<string> 	botOne;     	// mandatory
 	size_t 			windowNumber;	// mandatory
 	string 			outputFile; 	// optional
+	double 			pivotTau;		// optional
+	double			scgTau;			// optional
 } globalArg;
 
 //----------------------------------------------------------------

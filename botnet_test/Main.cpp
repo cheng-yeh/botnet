@@ -38,6 +38,8 @@ int main(int argc, char** argv)
 			{"BotOne",      required_argument, 0, 'c'},
 			{"WindowNum",   required_argument, 0, 'd'},
 			{"OutputFile",  required_argument, 0, 'e'},
+			{"PivotTau", 	required_argument, 0, 'f'},
+			{"ScgTau",		required_argument, 0, 'g'},
 			{"Help",        no_argument,       0, 'h'},
 			{0, 0, 0, 0}
 		};
@@ -87,10 +89,25 @@ int main(int argc, char** argv)
 				args.outputFile = optarg;
 				break;
 			
+			case 'f':
+				if(!Str2Double(optarg, args.pivotTau)){
+					cout << "--PivotTau must follow a double.";
+					return 1;
+				}
+				break;
+			
+			case 'g':
+				if(!Str2Double(optarg, args.scgTau)){
+					cout << "--ScgTau must follow a double.";
+					return 1;
+				}
+				break;
+				
 			case 'h':
-				cout << "Usage: <--TotalList <fileName>>\n       <--WindowNumber <window_number>>\n"     
-				     << "       [--BotOne <bot1_IP,bot2_IP,...>]\n       [--BotList <fileName>]\n"
-				     << "       [--OutputFile <outputFile>]\n       [--Help]\n";
+				cout << "Usage: <--TotalList <fileName>>               <--WindowNumber <window_number>>\n"     
+				     << "       [--BotOne <bot1_IP,bot2_IP,...>]       [--BotList <fileName>]\n"
+				     << "       [--OutputFile <outputFile>]            [--Help]\n"
+				     << "       [--PivotTau <threshold>]               [--ScgTau <threshold>]\n";
 				break;
 				
 			case '?':
