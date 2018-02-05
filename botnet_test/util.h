@@ -106,6 +106,21 @@ void VectorXd2Vector(const VectorXd& v1, vector<double>& v2);
 
 float poisson(int k, double lambda);
 
+vector< set<string> > timeList2Set(const vector< vector< vector<string> > >& v);
+set<string> Vector2Set(const vector<string>& v);
+
+// scoring function
+double FPR(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList);
+double recall(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList);
+double precision(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList);
+double f1_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList);
+double g_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList);
+
+pair<double, double> TPFN_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList);
+pair<double, double> TNFP_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList);
+pair<double, double> TPFN(const vector<string>& result, const vector<string>& ans, const set<string> & timeList);
+pair<double, double> TNFP(const vector<string>& result, const vector<string>& ans, const set<string> & timeList);
+
 /*********************************************************************
 Author       [ Chung-Yang (Ric) Huang ]
 Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]

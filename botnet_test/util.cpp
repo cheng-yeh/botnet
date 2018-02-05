@@ -168,3 +168,135 @@ poisson(int k, double lambda) {
     // https://en.wikipedia.org/wiki/Poisson_distribution#Definition
     return pow(M_E, k * log(lambda) - lambda - lgamma(k + 1.0));
 }
+
+vector< set<string> > 
+timeList2Set(const vector< vector< vector<string> > >& v)
+{
+	vector< set<string> > s;
+	for(size_t i = 0; i < v.size(); ++i){
+		for(size_t j = 0; j < v[i].size(); ++j){
+			s[i].insert(v[i][j][3]);
+			s[i].insert(v[i][j][6]);
+		}
+	}
+	
+	return s;
+}
+
+set<string>
+Vector2Set(const vector<string>& v)
+{
+	set<string> s;
+	for(size_t i = 0; i < v.size(); ++i)
+		s.insert(v[i]);
+	
+	return s;
+}
+
+double
+FPR(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+{
+	vector<double, double> tnfp = TNFP_bar(result, ans, timeList, anomaly);
+	return tnfp.second / (tnfp.first + tnfp.second);
+}
+
+double
+recall(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+{
+	vector<double, double> tpfn = TPFN_bar(result, ans, timeList, anomaly);
+	return tpfn.first / (tpfn.first + tpfn.second);
+}
+
+double
+precision(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+{
+	vector<double, double> tpfn = TPFN_bar(result, ans, timeList, anomaly);
+	vector<double, double> tnfp = TNFP_bar(result, ans, timeList, anomaly);
+	return tpfn.first / (tpfn.first + tnfp.first);
+}
+
+double
+f1_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+{
+	double r = recall(result, ans, timeList, anomaly);
+	double p = precision(result, ans, timeList, anomaly);
+	return 2 * (r * p) / (r + p);
+}
+
+double
+g_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+{
+	return sqrt( recall(result, ans, timeList, anomaly) * precision(result, ans, timeList, anomaly) );
+}
+
+pair<double, double>
+TPFN_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+{
+	pair<double, double> total = (0, 0);
+	
+	for(size_t i = 0; i < anomaly.size(); ++i){
+		if(anomaly[i]){
+			pair<double, double> score = TPFN(result, ans, timeList, anomaly);
+			total.first += score.first * cost(i);
+			total.second += score.second * cost(i);
+		}
+	}
+	
+	return total;
+}
+
+pair<double, double>
+TNFP_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+{
+	pair<double, double> total = (0, 0);
+	
+	for(size_t i = 0; i < anomaly.size(); ++i){
+		if(anomaly[i]){
+			pair<double, double> score = TNFP(result, ans, timeList, anomaly);
+			total.first += score.first * cost(i);
+			total.second += score.second * cost(i);
+		}
+	}
+	
+	return total;
+}
+
+double
+cost(int t)
+{
+	return 1 + exp(-t);
+}
+
+pair<double, double>
+TPFN(const vector<string>& result, const vector<string>& ans, const set<string> & timeList)
+{
+	const set<string>& s = Vector2Set(ans);
+	set<string> inter;
+	for(auto& x: timeList)
+		if(ans.find(x) != ans.end())
+			inter.insert(x);
+	
+	int miss = 0;
+	for(auto& x: result)
+		if(inter.find(x) == inter.end())
+			++miss;
+	
+	return make_pair( (inter.size() - miss) / inter.size(), miss / inter.size() );
+}
+
+pair<double, double>
+TNFP(const vector<string>& result, const vector<string>& ans, const set<string> & timeList)
+{
+	const set<string>& s = Vector2Set(ans);
+	set<string> inter;
+	for(auto& x: timeList)
+		if(ans.find(x) == ans.end())
+			inter.insert(x);
+	
+	int miss = 0;
+	for(auto& x: result)
+		if(inter.find(x) == inter.end())
+			++miss;
+	
+	return make_pair( (inter.size() - miss) / inter.size(), miss / inter.size() );
+}
