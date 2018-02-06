@@ -26,7 +26,7 @@ typedef struct globalArg_t{
 	string 			totalList;  	// mandatory
 	string 			botList;   		// optional
 	vector<string> 	botOne;     	// mandatory
-	size_t 			windowNumber;	// mandatory
+	int 			windowNumber;	// mandatory
 	string 			outputFile; 	// optional
 	double 			pivotTau;		// optional
 	double			scgTau;			// optional
@@ -110,16 +110,16 @@ vector< set<string> > timeList2Set(const vector< vector< vector<string> > >& v);
 set<string> Vector2Set(const vector<string>& v);
 
 // scoring function
-double FPR(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
-double recall(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
-double precision(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
-double f1_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
-double g_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
+double FPR(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
+double recall(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
+double precision(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
+double f1_score(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
+double g_score(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
 double cost(int t);
-pair<double, double> TPFN_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
-pair<double, double> TNFP_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
-pair<double, double> TPFN(const vector<string>& result, const vector<string>& ans, const set<string> & timeList);
-pair<double, double> TNFP(const vector<string>& result, const vector<string>& ans, const set<string> & timeList);
+pair<double, double> TPFN_bar(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
+pair<double, double> TNFP_bar(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly);
+pair<double, double> TPFN(const vector<string>& result, const set<string>& ans, const set<string> & timeList);
+pair<double, double> TNFP(const vector<string>& result, const set<string>& ans, const set<string> & timeList);
 
 /*********************************************************************
 Author       [ Chung-Yang (Ric) Huang ]

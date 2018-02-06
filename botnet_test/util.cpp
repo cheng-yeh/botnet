@@ -194,21 +194,21 @@ Vector2Set(const vector<string>& v)
 }
 
 double
-FPR(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+FPR(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
 {
 	pair<double, double> tnfp = TNFP_bar(result, ans, timeList, anomaly);
 	return tnfp.second / (tnfp.first + tnfp.second);
 }
 
 double
-recall(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+recall(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
 {
 	pair<double, double> tpfn = TPFN_bar(result, ans, timeList, anomaly);
 	return tpfn.first / (tpfn.first + tpfn.second);
 }
 
 double
-precision(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+precision(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
 {
 	pair<double, double> tpfn = TPFN_bar(result, ans, timeList, anomaly);
 	pair<double, double> tnfp = TNFP_bar(result, ans, timeList, anomaly);
@@ -216,7 +216,7 @@ precision(const vector<string>& result, const vector<string>& ans, const vector<
 }
 
 double
-f1_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+f1_score(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
 {
 	double r = recall(result, ans, timeList, anomaly);
 	double p = precision(result, ans, timeList, anomaly);
@@ -224,13 +224,13 @@ f1_score(const vector<string>& result, const vector<string>& ans, const vector< 
 }
 
 double
-g_score(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+g_score(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
 {
 	return sqrt( recall(result, ans, timeList, anomaly) * precision(result, ans, timeList, anomaly) );
 }
 
 pair<double, double>
-TPFN_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+TPFN_bar(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
 {
 	pair<double, double> total = make_pair(0., 0.);
 	
@@ -246,7 +246,7 @@ TPFN_bar(const vector<string>& result, const vector<string>& ans, const vector< 
 }
 
 pair<double, double>
-TNFP_bar(const vector<string>& result, const vector<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
+TNFP_bar(const vector<string>& result, const set<string>& ans, const vector< set<string> >& timeList, const vector<bool>& anomaly)
 {
 	pair<double, double> total = make_pair(0., 0.);
 	
@@ -268,12 +268,12 @@ cost(int t)
 }
 
 pair<double, double>
-TPFN(const vector<string>& result, const vector<string>& ans, const set<string> & timeList)
+TPFN(const vector<string>& result, const set<string>& ans, const set<string> & timeList)
 {
-	const set<string>& s = Vector2Set(ans);
+	//const set<string>& s = Vector2Set(ans);
 	set<string> inter;
 	for(auto& x: timeList)
-		if(s.find(x) != s.end())
+		if(ans.find(x) != ans.end())
 			inter.insert(x);
 	
 	int miss = 0;
@@ -285,12 +285,12 @@ TPFN(const vector<string>& result, const vector<string>& ans, const set<string> 
 }
 
 pair<double, double>
-TNFP(const vector<string>& result, const vector<string>& ans, const set<string> & timeList)
+TNFP(const vector<string>& result, const set<string>& ans, const set<string> & timeList)
 {
-	const set<string>& s = Vector2Set(ans);
+	//const set<string>& s = Vector2Set(ans);
 	set<string> inter;
 	for(auto& x: timeList)
-		if(s.find(x) == s.end())
+		if(ans.find(x) == ans.end())
 			inter.insert(x);
 	
 	int miss = 0;

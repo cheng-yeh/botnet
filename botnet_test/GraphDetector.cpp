@@ -108,7 +108,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 {
 	vector< vector<double> > all_degree;
 	vector< vector<double> > all_distribution;
-	for(size_t i = 0; i < args.windowNumber; ++i){
+	for(size_t i = 0; i < size_t(args.windowNumber); ++i){
 		vector<double> distribution;
 		vector<double> degree;
 		
@@ -123,7 +123,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 		all_degree.push_back(degree);
 	}
 	
-	for(size_t i = 0; i < args.windowNumber; ++i){
+	for(size_t i = 0; i < size_t(args.windowNumber); ++i){
 		if(!_anomaly[i]){
 			cout << "[";
 			//for(size_t j = 0; j < all_distribution[i].size(); ++j){
@@ -138,7 +138,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 	
 	if(_selectedModel){
 		cout << "Choose ER\n";
-		for(size_t i = 0; i < args.windowNumber; ++i){
+		for(size_t i = 0; i < size_t(args.windowNumber); ++i){
 			double lambda = lambda_hat(all_degree[i]);
 			double er = rate_function_ER(all_distribution[i], lambda);
 			//divergence.push_back( (ba > chj) ? chj : ba );
@@ -148,7 +148,7 @@ GraphDetector::detect(vector<size_t>& anomaly)
 	}
 	else{
 		cout << "Choose PA\n";
-		for(size_t i = 0; i < args.windowNumber; ++i){
+		for(size_t i = 0; i < size_t(args.windowNumber); ++i){
 			double gamma = gamma_hat(all_degree[i]);
 			double ba = rate_function_BA(all_distribution[i], gamma - 3);
 			double chj = rate_function_CHJ(all_distribution[i], 1 - 1 / (gamma - 1));

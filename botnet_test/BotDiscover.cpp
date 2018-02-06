@@ -212,14 +212,17 @@ BotDiscover::rebuild()
 void
 BotDiscover::setSCG2(const double tau)
 {
-	int debug = 0;
 	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
 	cout << "SCGcheck\n";
+	size_t debug = 0;
 	vector< vector<double> > temp_SCG = vector< vector<double> >(_anomalyList.size(), vector<double>(_anomalyList.size(), 0));
+	vector<string> temp_ipList = vector<string>(_anomalyList.size(), "\0");
 	
 	// construct SCG with respect to tau(threshold)
 	for(map<string, SCG_Node*>::iterator it1 = _anomalyList.begin(); it1 != _anomalyList.end(); ++it1){
-		if(1)cout << debug << endl;	
+		if(1)cout << debug << endl;
+		// record IP list
+		temp_ipList[it1 -> second -> id] = it1 -> first;
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
 			if(it1 == it2)continue;
 			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
@@ -245,9 +248,10 @@ BotDiscover::setSCG2(const double tau)
 	
 	cout << "final size = " << nonempty.size() << endl;
 	
-	// construct final SCG
+	// construct final SCG and ipList
 	_SCG = vector< vector<double> >(nonempty.size(), vector<double>(nonempty.size(), 0));
 	for(size_t i = 0; i < _SCG.size(); ++i){
+		_ipList[i] = temp_ipList[nonempty[i]];
 		for(size_t j = 0; j < _SCG.size(); ++j){
 			_SCG[i][j] = temp_SCG[nonempty[i]][nonempty[j]];
 		}
@@ -259,6 +263,18 @@ BotDiscover::setSCG2(const double tau)
 			cout << _SCG[i][j] << " ";
 		cout << endl;
 	}
+}
+
+vector< vector<double> >
+BotDiscover::get_SCG() const
+{
+	return _SCG;
+}
+
+vector<string>
+BotDiscover::get_ipList() const
+{
+	return _ipList;
 }
 
 bool

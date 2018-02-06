@@ -26,19 +26,18 @@ Reader::ReadFromBinetflow(const std::string& fname)
 {
 	// read and parse from the file to a 2d vector of string
 	ifstream file(fname.c_str());
-	if(!file.is_open())
+	if(!file.is_open()){
+		cout << "Error! Cannot open file " << fname << endl;
 		return;
-	bool skip = true;
+	}
 	int length = -1;
 	char buff[512];
+	
+	// skip the first line
+	file.getline(buff, 512);
+	
 	while(file.getline(buff, 512))
 	{
-		// skip the first line
-		if(skip){
-			skip = false;
-			continue;
-		}
-		
 		vector<string> data;
 		size_t pos = 0, end = -1;
 		string tok = "\0";
@@ -59,10 +58,32 @@ Reader::ReadFromBinetflow(const std::string& fname)
 	file.close();
 }
 
+void
+Reader::ReadFromBotList(const std::string& fname)
+{
+	ifstream file(fname.c_str());
+	if(!file.is_open()){
+		cout << "Error! Cannot open file " << fname << endl;
+		return;
+	}
+	char buff[512];
+	while(file.getline(buff, 512))
+	{
+		string data = buff;
+		botlist.insert(data);
+	}
+}
+
 const vector< vector<string> >&
 Reader::getRawData() const
 {
 	return raw_data;
+}
+
+const set<string>&
+Reader::getBotList() const
+{
+	return botlist;
 }
 
 void

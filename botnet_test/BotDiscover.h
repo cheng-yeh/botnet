@@ -31,7 +31,11 @@ public:
 	void setSCG(const vector< vector< vector<string> > >& timeList, const double tau = 20);
 	//void rebuild();
 	void setSCG2(const double tau = 0.0);
-
+	
+	// public get function
+	vector< vector<double> > get_SCG() const;
+	vector<string> get_ipList() const;
+	
 private:
 	bool degreeOneFilter(string node);
 	void trimAnomalyList(vector<string>& removed);
@@ -55,5 +59,6 @@ private:
 	//map<string, SCG_Node*> _scgList;
 	//vector< vector<double> > _total_interaction;
 	//MatrixXd _SCG;
+	vector<string> _ipList;
 	vector< vector<double> > _SCG;
 };
