@@ -16,6 +16,8 @@
 //#include "FlowDetector.h"
 #include "BotDiscover.h"
 
+#include <typeinfo>
+
 using namespace std;
 
 globalArg args;
@@ -26,26 +28,25 @@ GraphDetector* GD = 0;
 BotDiscover* BD = 0;
 
 static struct option long_options[] =
-{
-	// parameters to be set
-	{"totalList",  			required_argument, 0, 'a'},
-	{"allBot",     			required_argument, 0, 'b'},
-	{"botOne",     			required_argument, 0, 'c'},
-	{"windowNum",  			required_argument, 0, 'd'},
-	{"outputFile", 			required_argument, 0, 'e'},
-	{"pivotTau", 			required_argument, 0, 'f'},
-	{"scgTau",				required_argument, 0, 'g'},
-	// choice of operation
-	{"Read-File", 			required_argument, 0, 'i'},
-	{"Write-File",		 	required_argument, 0, 'j'},
-	{"Anomaly-Detection", 	required_argument, 0, 'k'},
-	{"Bot-Detection", 		required_argument, 0, 'l'},
-	{"Scoring", 			required_argument, 0, 'm'},
-	// help message	
-	{"help",       			no_argument,       0, 'h'},
-	{"Quit",       			no_argument,       0, 'n'},
-	{0, 0, 0, 0}
-};
+	{
+		// parameters to be set
+		{"totalList",  			required_argument, 0, 'a'},
+		{"allBot",     			required_argument, 0, 'b'},
+		{"botOne",     			required_argument, 0, 'c'},
+		{"windowNum",  			required_argument, 0, 'd'},
+		{"outputFile", 			required_argument, 0, 'e'},
+		{"pivotTau", 			required_argument, 0, 'f'},
+		{"scgTau",				required_argument, 0, 'g'},
+		// choice of operation
+		{"Read-File", 			required_argument, 0, 'i'},
+		{"Write-File",		 	required_argument, 0, 'j'},
+		{"Anomaly-Detection", 	required_argument, 0, 'k'},
+		{"Bot-Detection", 		required_argument, 0, 'l'},
+		{"Scoring", 			required_argument, 0, 'm'},
+		// help message	
+		{"help",       			no_argument,       0, 'h'},
+		{0, 0, 0, 0}
+	};
 
 // flags for operation order
 bool flag_read_flow = false, flag_read_bot = false, flag_write_ref = false, flag_write_result = false,
@@ -72,7 +73,7 @@ int main(int argc, char** argv)
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
 		c = getopt_long (argc, argv, "ha:b:c:d:e:f:g:", long_options, &option_index);
-
+	
 		/* Detect the end of the options. */
 		if (c == -1)
 			break;
@@ -154,32 +155,26 @@ int main(int argc, char** argv)
 		size_t pos = 0;
 		string tok = " ";
 		vector<string> buff;
+		buff.push_back("./botnet");
 		while(tok != ""){
 			pos = StrGetTok(str, tok, pos, ' ');
 			if(tok != "")buff.push_back(tok);
 		}
 		int _argc = buff.size();
-		char* _argv[_argc];
-		for(size_t i = 0; i < _argc; ++i){
-			char* ch = new char[buff[i].size()];
-			for(size_t j = 0; j < buff[i].size(); ++j)
-				ch[j] = buff[i][j];
-			_argv[i] = ch;
+		char** _argv = (char**)alloca(_argc);
+		for(int i = 0; i < _argc; ++i){
+			_argv[i] = (char*)alloca(buff[i].size() + 1);
+			memcpy(_argv[i], buff[i].c_str(), buff[i].size() + 1);
 		}
 		
-cout << "debug" << endl;
-cout << argc << "  " << _argc << endl;
-		for(size_t i = 0; i < _argc; ++i){
-			cout << _argv[i] << endl;
-			cout << argv[i] << endl;
-		}
-
+		// reset parameters in getopt
+		optind = 0;
+		opterr = 0;
+		optopt = 0;
 		while(1){
 			// getopt
 			int option_index = 0;
-cout << "ch\n";
-			c = getopt_long (_argc - 1, _argv, "hni:j:k:l:m:", long_options, &option_index);
-cout << "c = " << c << endl;
+			c = getopt_long (_argc, _argv, "hi:j:k:l:m:n", long_options, &option_index);
 			/* Detect the end of the options. */
 			if (c == -1)
 				break;
@@ -195,26 +190,27 @@ cout << "c = " << c << endl;
 					break;
 
 				case 'i':
-					if(optarg == "flow")flag_read_flow = reading(true);
-					else if(optarg == "bot")flag_read_bot = reading(false);
-					else cout << "Command " << optarg << "not found.\n";
+					cout << "--R" << endl;
+					if(string(optarg) == "flow")flag_read_flow = reading(true);
+					else if(string(optarg) == "bot")flag_read_bot = reading(false);
+					else cout << "Command " << optarg << " not found.\n";
 					break;
 
 				case 'j':
-					if(optarg == "ref")flag_write_ref = write_ref();
-					else if(optarg == "result")flag_write_result = write_result();
-					else cout << "Command " << optarg << "not found.\n";
+					if(string(optarg) == "ref")flag_write_ref = write_ref();
+					else if(string(optarg) == "result")flag_write_result = write_result();
+					else cout << "Command " << optarg << " not found.\n";
 					break;
 			
 				case 'k':
-					if(optarg == "flow")flag_anomaly_flow = anomaly_flow();
-					else if(optarg == "degree")flag_anomaly_degree = anomaly_degree();
-					else cout << "Command " << optarg << "not found.\n";
+					if(string(optarg) == "flow")flag_anomaly_flow = anomaly_flow();
+					else if(string(optarg) == "degree")flag_anomaly_degree = anomaly_degree();
+					else cout << "Command " << optarg << " not found.\n";
 					break;
 				
 				case 'l':
-					if(optarg == "scg")flag_bot_scg = bot_scg();
-					else cout << "Command " << optarg << "not found.\n";
+					if(string(optarg) == "scg")flag_bot_scg = bot_scg();
+					else cout << "Command " << optarg << " not found.\n";
 					break;
 			
 				case 'm':
@@ -240,7 +236,6 @@ bool reading(bool flag){
 	if(R == 0)R = new Reader();
 	if(flag)target = args.totalList;
 	else target = args.botList;
-	
 	string ext1 = target.substr(target.rfind('.'), target.length() - target.rfind('.'));
 	if(ext1 == ".binetflow")
 		R -> ReadFromBinetflow(target);

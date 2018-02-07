@@ -100,13 +100,13 @@ Reader::rawToTimelist(vector< vector< vector<string> > >& _timeList)
 	double window_size = delta / args.windowNumber;
 	
 	size_t j = 0;
-	for(size_t i = 0; i < args.windowNumber; ++i){
+	for(int i = 0; i < args.windowNumber; ++i){
 		vector< vector<string> > temp;
 
 		for(; j < raw_data.size(); ++j){
 			TimeKey key = TimeKey(raw_data[j][0]);
 
-			if(size_t( (key - begin) / window_size) == i){
+			if((key - begin) / window_size == i){
 				temp.push_back(raw_data[j]);
 			}
 			else{
