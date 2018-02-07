@@ -30,27 +30,27 @@ BotDiscover* BD = 0;
 static struct option long_options[] =
 	{
 		// parameters to be set
-		{"totalList",  			required_argument, 0, 'a'},
-		{"allBot",     			required_argument, 0, 'b'},
-		{"botOne",     			required_argument, 0, 'c'},
-		{"windowNum",  			required_argument, 0, 'd'},
-		{"outputFile", 			required_argument, 0, 'e'},
-		{"pivotTau", 			required_argument, 0, 'f'},
-		{"scgTau",			required_argument, 0, 'g'},
+		{"totalList",           required_argument, 0, 'a'},
+		{"allBot",              required_argument, 0, 'b'},
+		{"botOne",              required_argument, 0, 'c'},
+		{"windowNum",           required_argument, 0, 'd'},
+		{"outputFile",          required_argument, 0, 'e'},
+		{"pivotTau",            required_argument, 0, 'f'},
+		{"scgTau",              required_argument, 0, 'g'},
 		// choice of operation
-		{"Read-File", 			required_argument, 0, 'i'},
-		{"Write-File",		 	required_argument, 0, 'j'},
-		{"Anomaly-Detection",		required_argument, 0, 'k'},
-		{"Bot-Detection", 		required_argument, 0, 'l'},
-		{"Scoring", 			required_argument, 0, 'm'},
+		{"Read-File",           required_argument, 0, 'i'},
+		{"Write-File",          required_argument, 0, 'j'},
+		{"Anomaly-Detection",   required_argument, 0, 'k'},
+		{"Bot-Detection",       required_argument, 0, 'l'},
+		{"Scoring",             required_argument, 0, 'm'},
 		// help message	
-		{"help",       			no_argument,       0, 'h'},
+		{"help",                no_argument,       0, 'h'},
 		{0, 0, 0, 0}
 	};
 
 // flags for operation order
 bool flag_read_flow = false, flag_read_bot = false, flag_write_ref = false, flag_write_result = false,
-	flag_anomaly_flow = false, flag_anomaly_degree = false, flag_bot_scg = false, flag_scoring = false;
+     flag_anomaly_flow = false, flag_anomaly_degree = false, flag_bot_scg = false, flag_scoring = false;
 
 // forward declaration of operation functions
 bool reading(bool flag);
@@ -160,6 +160,7 @@ int main(int argc, char** argv)
 			pos = StrGetTok(str, tok, pos, ' ');
 			if(tok != "")buff.push_back(tok);
 		}
+		
 		int _argc = buff.size();
 		char** _argv = (char**)alloca(_argc);
 		for(int i = 0; i < _argc; ++i){
@@ -171,6 +172,7 @@ int main(int argc, char** argv)
 		optind = 0;
 		opterr = 0;
 		optopt = 0;
+		
 		while(1){
 			// getopt
 			int option_index = 0;
