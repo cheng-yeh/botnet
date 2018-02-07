@@ -16,43 +16,47 @@
 //#include "FlowDetector.h"
 #include "BotDiscover.h"
 
-#include <typeinfo>
-
 using namespace std;
 
+// struct for storing global arguments
 globalArg args;
 
+// instance of related classes
 Reader* R = 0;
 Writer* W = 0;
 GraphDetector* GD = 0;
 BotDiscover* BD = 0;
 
+// options for getopt()
 static struct option long_options[] =
-	{
-		// parameters to be set
-		{"totalList",           required_argument, 0, 'a'},
-		{"allBot",              required_argument, 0, 'b'},
-		{"botOne",              required_argument, 0, 'c'},
-		{"windowNum",           required_argument, 0, 'd'},
-		{"outputFile",          required_argument, 0, 'e'},
-		{"pivotTau",            required_argument, 0, 'f'},
-		{"scgTau",              required_argument, 0, 'g'},
-		// choice of operation
-		{"Read-File",           required_argument, 0, 'i'},
-		{"Write-File",          required_argument, 0, 'j'},
-		{"Anomaly-Detection",   required_argument, 0, 'k'},
-		{"Bot-Detection",       required_argument, 0, 'l'},
-		{"Scoring",             required_argument, 0, 'm'},
-		// help message	
-		{"help",                no_argument,       0, 'h'},
-		{0, 0, 0, 0}
-	};
+{
+	// parameters to be set
+	{"totalList",           required_argument, 0, 'a'},
+	{"allBot",              required_argument, 0, 'b'},
+	{"botOne",              required_argument, 0, 'c'},
+	{"windowNum",           required_argument, 0, 'd'},
+	{"outputFile",          required_argument, 0, 'e'},
+	{"pivotTau",            required_argument, 0, 'f'},
+	{"scgTau",              required_argument, 0, 'g'},
+	// choice of operation
+	{"Read-File",           required_argument, 0, 'i'},
+	{"Write-File",          required_argument, 0, 'j'},
+	{"Anomaly-Detection",   required_argument, 0, 'k'},
+	{"Bot-Detection",       required_argument, 0, 'l'},
+	{"Scoring",             required_argument, 0, 'm'},
+	// help message	
+	{"help",                no_argument,       0, 'h'},
+	// exit the whole program
+	{"Quit",                no_argument,       0, 'n'},
+	{0, 0, 0, 0}
+};
 
-// flags for operation order
-bool flag_read_flow = false, flag_read_bot = false, flag_write_ref = false, flag_write_result = false,
+// flags for operation precedence
+bool flag_allbot = false, flag_botone = false, flag_outputfile = false, 
+     flag_read_flow = false, flag_read_bot = false, flag_write_ref = false, flag_write_result = false,
      flag_anomaly_flow = false, flag_anomaly_degree = false, flag_bot_scg = false, flag_scoring = false;
 
-// forward declaration of operation functions
+// forward declaration of operational functions
 bool reading(bool flag);
 bool write_ref();
 bool write_result();
@@ -79,9 +83,6 @@ int main(int argc, char** argv)
 			break;
 		switch (c)
 		{
-			case 0:
-				break;
-
 			case 'a':
 				++mandatory;
 				args.totalList = optarg;
@@ -89,6 +90,7 @@ int main(int argc, char** argv)
 
 			case 'b':
 				args.botList = optarg;
+				flag_allbot = true;
 				break;
 
 			case 'c':
@@ -98,6 +100,7 @@ int main(int argc, char** argv)
 					pos = opt.find(",", pos) + 1;
 				}
 				args.botOne.push_back(opt.substr(pos));
+				flag_botone = true;
 				break;
 			
 			case 'd':
@@ -110,6 +113,7 @@ int main(int argc, char** argv)
 				
 			case 'e':
 				args.outputFile = optarg;
+				flag_outputfile = true;
 				break;
 			
 			case 'f':
@@ -144,7 +148,8 @@ int main(int argc, char** argv)
 	}
 		 
 	while(1){
-		// command line, generate argc and argv for getopt
+		// command line for operation control
+		// generate argc and argv for getopt
 		char str[255];
 		cout << "\nbotnet >> ";
 		cin.getline(str, 256, '\n');
@@ -179,9 +184,6 @@ int main(int argc, char** argv)
 				break;
 			switch (c)
 			{
-				case 0:
-					break;
-					
 				case 'h':
 					cout << "Usage: [--Read-File <flow | bot>] | [--Write-File <ref | result>] |\n"     
 				     	 << "       [--Anomaly-Detection <flow | degree>] | [--Bot-Detection <scg>] |\n"
@@ -189,7 +191,6 @@ int main(int argc, char** argv)
 					break;
 
 				case 'i':
-					cout << "--R" << endl;
 					if(string(optarg) == "flow")flag_read_flow = reading(true);
 					else if(string(optarg) == "bot")flag_read_bot = reading(false);
 					else cout << "Command " << optarg << " not found.\n";
@@ -233,29 +234,47 @@ bool reading(bool flag){
 	string target;
 	
 	if(R == 0)R = new Reader();
-	if(flag)target = args.totalList;
-	else target = args.botList;
-	string ext1 = target.substr(target.rfind('.'), target.length() - target.rfind('.'));
-	if(ext1 == ".binetflow")
-		R -> ReadFromBinetflow(target);
-	else if(ext1 == ".txt"){
-		R -> ReadFromBotList(target);
+	if(flag){
+		target = args.totalList;
 	}
 	else{
-		cout << "Input file must be a binetflow file.\n";
-		return false;
+		if(flag_allbot){
+			target = args.botList;
+		}
+		else{
+			cout << "Must provide --botList <(fileName)>.\n";
+			return false;
+		}
+	}
+	
+	string ext1 = target.substr(target.rfind('.'), target.length() - target.rfind('.'));
+	if(flag){
+		if(ext1 == ".binetflow")
+			R -> ReadFromBinetflow(target);
+		else{
+			cout << "Must provide --totalList <(fileName)> with a binetfile.\n";
+			return false;
+		}
+	}
+	else{
+		if(ext1 == ".txt" || ext1 == "")
+			R -> ReadFromBotList(target);
+		else{
+			cout << "Must provide --botList <(fileName)> with a text file.\n";
+			return false;
+		}
 	}
 	return true;
 }
 
 bool write_ref(){
-	if(flag_read_flow && flag_read_bot){
+	if(flag_read_flow && flag_read_bot && flag_outputfile){
 		if(W == 0)W = new Writer();
 		W -> GroundTruthWriter( R -> getRawData(), args.botOne, args.outputFile );
 		return true;
 	}
 	
-	cout << "Need to do --Read <flow> and --Read <bot> first.\n";
+	cout << "Need to set up [--OutputFile <(filename)>] and do [--Read <flow>] and [--Read <bot>] first.\n";
 	return false;
 }
 
@@ -267,6 +286,7 @@ bool write_result(){
 bool anomaly_flow(){
 	if(flag_read_flow){}
 	cout << "This part isn't yet complete.\n";
+	cout << "Need to do [--Read <flow>] first.\n";
 	return false;
 }
 
@@ -283,15 +303,19 @@ bool anomaly_degree(){
 		GD -> detect(anomaly);
 		return true;
 	}
+	
+	cout << "Need to do [--Read <flow>] first.\n";
 	return false;
 }
 
 bool bot_scg(){
 	if(flag_anomaly_degree || flag_anomaly_flow){
-		if(BD == 0)BD = new BotDiscover(GD -> getAnomaly(), GD -> getTimeList());
-		
+		if(BD == 0)
+			BD = new BotDiscover(GD -> getAnomaly(), GD -> getTimeList());
 		return true;
 	}
+	
+	cout << "Need to do [--Anomaly <flow>] or [--Anomaly <degree>] first.\n";
 	return false;
 }
 
@@ -317,5 +341,6 @@ bool scoring(){
 			return true;
 		}
 	}
+	cout << "Need to do [--Bot-Detection <scg>] and [--Read <bot>] first.\n";
 	return false;
 }
