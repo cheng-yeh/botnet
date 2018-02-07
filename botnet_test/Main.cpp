@@ -294,6 +294,7 @@ bool anomaly_degree(){
 	if(flag_read_flow){
 		if(GD == 0)GD = new GraphDetector();
 		R -> rawToTimelist(GD -> _timeList);
+		cout << (GD -> _timeList).size();
 		GD -> timelistToIntergraph();
 		//GD -> readGraph(R -> getRawData(), false);
 		//cout << "Start selecting\n";
