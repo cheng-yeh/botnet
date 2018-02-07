@@ -133,12 +133,9 @@ int main(int argc, char** argv)
 				     << "       [--pivotTau <(threshold)>]               [--scgTau <(threshold)>]\n";
 				break;
 				
-			case '?':
-				/* getopt_long already printed an error message. */
-				break;
-
 			default:
-				abort ();
+				cout << "command not found.";
+				break;
 		}
 	}
 	if(mandatory != 2){
