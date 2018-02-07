@@ -36,11 +36,11 @@ static struct option long_options[] =
 		{"windowNum",  			required_argument, 0, 'd'},
 		{"outputFile", 			required_argument, 0, 'e'},
 		{"pivotTau", 			required_argument, 0, 'f'},
-		{"scgTau",				required_argument, 0, 'g'},
+		{"scgTau",			required_argument, 0, 'g'},
 		// choice of operation
 		{"Read-File", 			required_argument, 0, 'i'},
 		{"Write-File",		 	required_argument, 0, 'j'},
-		{"Anomaly-Detection", 	required_argument, 0, 'k'},
+		{"Anomaly-Detection",		required_argument, 0, 'k'},
 		{"Bot-Detection", 		required_argument, 0, 'l'},
 		{"Scoring", 			required_argument, 0, 'm'},
 		// help message	
@@ -50,7 +50,7 @@ static struct option long_options[] =
 
 // flags for operation order
 bool flag_read_flow = false, flag_read_bot = false, flag_write_ref = false, flag_write_result = false,
-	 flag_anomaly_flow = false, flag_anomaly_degree = false, flag_bot_scg = false, flag_scoring = false;
+	flag_anomaly_flow = false, flag_anomaly_degree = false, flag_bot_scg = false, flag_scoring = false;
 
 // forward declaration of operation functions
 bool reading(bool flag);
