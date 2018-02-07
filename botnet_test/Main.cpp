@@ -268,13 +268,13 @@ bool reading(bool flag){
 }
 
 bool write_ref(){
-	if(flag_read_flow && flag_read_bot && flag_outputfile){
+	if(flag_read_flow && flag_botone && flag_outputfile){
 		if(W == 0)W = new Writer();
 		W -> GroundTruthWriter( R -> getRawData(), args.botOne, args.outputFile );
 		return true;
 	}
 	
-	cout << "Need to set up [--OutputFile <(filename)>] and do [--Read <flow>] and [--Read <bot>] first.\n";
+	cout << "Need to set up [--BotOne <(bot1_IP, bot2_IP,...)>], [--OutputFile <(filename)>] and do [--Read <flow>] first.\n";
 	return false;
 }
 
