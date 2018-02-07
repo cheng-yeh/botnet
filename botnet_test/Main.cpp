@@ -312,11 +312,12 @@ bool anomaly_degree(){
 
 bool bot_scg(){
 	if(flag_anomaly_degree || flag_anomaly_flow){
-		if(BD == 0)
+		if(BD == 0){
 			BD = new BotDiscover(GD -> getAnomaly(), GD -> getTimeList());
+			BD -> setSCG2();
+		}
 		return true;
 	}
-	
 	cout << "Need to do [--Anomaly <flow>] or [--Anomaly <degree>] first.\n";
 	return false;
 }

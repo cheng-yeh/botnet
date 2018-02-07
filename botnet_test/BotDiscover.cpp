@@ -25,7 +25,7 @@ BotDiscover::BotDiscover(const vector<bool>& anomaly, const vector< vector< vect
 	_anomaly = anomaly;
 	setSCG(timeList);
 	cout << "Finish setSCG();\n";
-	setSCG2();
+	//setSCG2();
 }
 
 BotDiscover::~BotDiscover()
@@ -250,6 +250,7 @@ BotDiscover::setSCG2(const double tau)
 	
 	// construct final SCG and ipList
 	_SCG = vector< vector<double> >(nonempty.size(), vector<double>(nonempty.size(), 0));
+	_ipList = vector<string>(nonempty.size(), "\0");
 	for(size_t i = 0; i < _SCG.size(); ++i){
 		_ipList[i] = temp_ipList[nonempty[i]];
 		for(size_t j = 0; j < _SCG.size(); ++j){
