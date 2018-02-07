@@ -102,11 +102,9 @@ Reader::rawToTimelist(vector< vector< vector<string> > >& _timeList)
 	size_t j = 0;
 	for(int i = 0; i < args.windowNumber; ++i){
 		vector< vector<string> > temp;
-
 		for(; j < raw_data.size(); ++j){
 			TimeKey key = TimeKey(raw_data[j][0]);
-
-			if((key - begin) / window_size == i){
+			if(int( (key - begin) / window_size) == i){
 				temp.push_back(raw_data[j]);
 			}
 			else{

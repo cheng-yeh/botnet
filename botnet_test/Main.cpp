@@ -43,7 +43,7 @@ static struct option long_options[] =
 	{"Write-File",          required_argument, 0, 'j'},
 	{"Anomaly-Detection",   required_argument, 0, 'k'},
 	{"Bot-Detection",       required_argument, 0, 'l'},
-	{"Scoring",             required_argument, 0, 'm'},
+	{"Scoring",             no_argument,       0, 'm'},
 	// help message	
 	{"help",                no_argument,       0, 'h'},
 	// exit the whole program
@@ -294,7 +294,8 @@ bool anomaly_degree(){
 	if(flag_read_flow){
 		if(GD == 0)GD = new GraphDetector();
 		R -> rawToTimelist(GD -> _timeList);
-		cout << (GD -> _timeList).size();
+		cout << "timeList.size() = " << (GD -> _timeList).size() << endl;
+		cout << "timeList[0].size() = " << (GD -> _timeList[0].size()) << endl;
 		GD -> timelistToIntergraph();
 		//GD -> readGraph(R -> getRawData(), false);
 		//cout << "Start selecting\n";
