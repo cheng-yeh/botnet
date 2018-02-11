@@ -325,11 +325,11 @@ bool bot_scg(){
 bool scoring(){
 	if(flag_read_bot){
 		bool flag;
-		if(flag_anomaly_degree){
+		if(flag_anomaly_flow){
 			cout << "This part isn't yet complete.\n";
 			return false;
 		}
-		else if(flag_anomaly_flow){
+		else if(flag_anomaly_degree){
 			flag = true;
 		}
 		if(flag_bot_scg){
