@@ -58,8 +58,7 @@ bool flag_allbot = false, flag_botone = false, flag_outputfile = false,
 
 // forward declaration of operational functions
 bool reading(bool flag);
-bool write_ref();
-bool write_result();
+bool writing(int flag);
 bool anomaly_flow();
 bool anomaly_degree();
 bool bot_scg();
@@ -197,8 +196,8 @@ int main(int argc, char** argv)
 					break;
 
 				case 'j':
-					if(string(optarg) == "ref")flag_write_ref = write_ref();
-					else if(string(optarg) == "result")flag_write_result = write_result();
+					if(string(optarg) == "ref")flag_write_ref = writing(0);
+					else if(string(optarg) == "result")flag_write_result = writing(1);
 					else cout << "Command " << optarg << " not found.\n";
 					break;
 			
@@ -267,14 +266,42 @@ bool reading(bool flag){
 	return true;
 }
 
-bool write_ref(){
-	if(flag_read_flow && flag_botone && flag_outputfile){
-		if(W == 0)W = new Writer();
-		W -> GroundTruthWriter( R -> getRawData(), args.botOne, args.outputFile );
-		return true;
+bool writing(int flag){
+	string excp = "";
+	string ext = args.outputFile.substr(args.outputFile.rfind('.'), args.outputFile.length() - args.outputFile.rfind('.'));
+	
+	if(flag_read_flow && flag_outputfile){
+		if(flag == 0){
+			if(flag_botone){
+				if(ext == ".txt"){
+					if(W == 0)W = new Writer();
+					W -> GroundTruthWriter( R -> getRawData(), args.botOne, args.outputFile );
+					return true;
+				}
+				else{
+					cout << "OutputFile must be a .txt file.\n";
+					return false;
+				}
+			}
+			else excp += " [--BotOne <(bot1_IP, bot2_IP,...)>]";
+		}
+		else{
+			if(flag_bot_scg){
+				if(ext == ".dat"){
+					if(W == 0)W = new Writer();
+					W -> SADPWriter( BD -> get_SCG(), args.outputFile );
+					return true;
+				}
+				else{
+					cout << "OutputFile must be a .dat file.\n";
+					return false;
+				}
+			}
+			else excp += " do [--Bot-Detection <scg>]";
+		}
 	}
 	
-	cout << "Need to set up [--BotOne <(bot1_IP, bot2_IP,...)>], [--OutputFile <(filename)>] and do [--Read <flow>] first.\n";
+	cout << "Need to set up [--OutputFile <(filename)>]," << excp << " and do [--Read <flow>] first.\n";
 	return false;
 }
 
