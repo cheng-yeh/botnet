@@ -48,7 +48,43 @@ Writer::GroundTruthWriter(const vector< vector<string> >& data, const vector<str
 }
 
 void
-Writer::SADWriter(const string& data, string& filename)
+Writer::SADPWriter(const vector< vector<double> > data, string& filename)
 {
-
+	ofstream of;
+	of.open(filename);
+	
+	of << "\"" << filename << ": mDim = " << data.size() << ", nBLOCK = 1, {" << data.size() << "}\n";
+	
+	of << "   " << data.size() << " = mDim\n   1 = nBLOCK\n   " << data.size() << " = bLOCKsTRUCT\n{";
+	
+	for(size_t i = 1; i < data.size(); ++i)
+		of << "1, ";
+	
+	of << "1}\n{ {";
+	
+	for(size_t i = 0; i < data.size(); ++i){
+		for(size_t j = 0; j < data.size(); ++j){
+			of << " " << data[i][j];
+			if(j != data.size() - 1)
+				of << ", ";
+		}
+		if(i != data.size() - 1)
+			of << "}, {";
+	}
+	
+	of << "} }\n";
+	
+	for(size_t i = 0; i < data.size(); ++i){
+		of << "{ {";
+		for(size_t j = 0; j < data.size(); ++j){
+			for(size_t k = 0; k < data.size(); ++k){
+				of << " " << ( (j == k) ? 1 : 0 );
+				if(k != data.size() - 1)
+					of << ", ";
+			}
+			if(j != data.size() - 1)
+				of << "}, {";
+		}
+		of << "} }\n";
+	}
 }
