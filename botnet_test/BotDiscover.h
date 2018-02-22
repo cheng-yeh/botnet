@@ -29,36 +29,30 @@ public:
 	
 	// set function
 	void setSCG(const vector< vector< vector<string> > >& timeList, const double tau = 20);
-	//void rebuild();
 	void setSCG2(const double tau = 0.0);
-	
+
 	// public get function
 	vector< vector<double> > get_SCG() const;
 	vector<string> get_ipList() const;
 	
 private:
+	// filter
 	bool degreeOneFilter(string node);
 	void trimAnomalyList(vector<string>& removed);
+	
 	// node operation
 	SCG_Node* newNode();
 	void deleteNode(SCG_Node*& ptr);
+	
 	// statistic computation for SCGNode
 	double mean(const string& i);
 	double deviation(const string& i);
 	double corelation_coefficient(const string& i, const string& j);
-	// statistic computation for map
-	//double mean(const string& i, const map<string, vector<double> > scg);
-	//double deviation(const string& i, const map<string, vector<double> > scg);
-	//double corelation_coefficient(const string& i, const string& j, const map<string, vector<double> > scg);
 
 private:
 	vector<bool> _anomaly;
 	int _anomalyNumber;
-	unordered_set<string> _pivot;
 	map<string, SCG_Node*> _anomalyList;
-	//map<string, SCG_Node*> _scgList;
-	//vector< vector<double> > _total_interaction;
-	//MatrixXd _SCG;
-	vector<string> _ipList;
 	vector< vector<double> > _SCG;
+	vector<string> _ipList;
 };

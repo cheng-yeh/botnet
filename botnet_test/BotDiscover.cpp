@@ -16,7 +16,7 @@ extern globalArg args;
 
 BotDiscover::BotDiscover()
 {
-	_anomalyNumber = 0;
+	
 }
 
 BotDiscover::BotDiscover(const vector<bool>& anomaly, const vector< vector< vector<string> > >& timeList)
@@ -24,18 +24,12 @@ BotDiscover::BotDiscover(const vector<bool>& anomaly, const vector< vector< vect
 	_anomalyNumber = 0;
 	_anomaly = anomaly;
 	setSCG(timeList);
-	cout << "Finish setSCG();\n";
-	//setSCG2();
+	setSCG2();
 }
 
 BotDiscover::~BotDiscover()
 {
-	/*for(map<string, SCG_Node*>::iterator it = _anomalyList.begin(); it != _anomalyList.end(); ++it){
-		if(it -> second){
-			delete (it -> second);
-			it -> second = 0;
-		}
-	}*/
+
 }
 
 void
@@ -44,72 +38,64 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	// node for collect total interaction
 	map<string, double> node;
 	int count = 0;
+	
 	// compute total interaction
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			++_anomalyNumber;
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(!node.emplace(timeList[i][j][3], 1).second){
+				if(node.find(timeList[i][j][3]) == node.end())
+					node[timeList[i][j][3]] = 1;
+				else
 					++node[timeList[i][j][3]];
-				}
-				else{
-					//if(!_anomalyList.emplace(timeList[i][j][3], newNode(count)).second)
-					//	cout << "Error in BotDiscover::setTotalInteraction\n";
-				}
-				if(!node.emplace(timeList[i][j][6], 1).second){
+
+				if(node.find(timeList[i][j][6]) == node.end())
+					node[timeList[i][j][6]] = 1;
+				else
 					++node[timeList[i][j][6]];
-				}
-				else{
-					//if(!_anomalyList.emplace(timeList[i][j][6], newNode(count)).second)
-					//	cout << "Error in BotDiscover::setTotalInteraction\n";
-				}
-				
-				//(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
-				//(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
 			}
 		}
 	}
-	// select pivots
+	
+	// select pivots and create _anomalyList
 	cout << "pivot:";
 	for(auto& x: node){
-		//_anomalyList[x.first] -> total_interaction = x.second / _anomaly.size();
 		if(x.second / _anomalyNumber > tau){
 			if(!_anomalyList.emplace(x.first, newNode()).second)
 				cout << "Error in BotDiscover::setpivot\n";
 			_anomalyList[x.first] -> pivot = true;
+			_anomalyList[x.first] -> total = node[x.first];
 			cout << x.first << " ";
 			cout << x.second / _anomalyNumber << endl;
 		}
-		if(x.first == "147.32.84.165")cout << "The bot: " << x.second / _anomalyNumber << endl;
 	}
-	cout << "scg2\n";
+	
 	// compute interactions with pivots
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(_anomalyList.find(timeList[i][j][3]) != _anomalyList.end()){
-					if(_anomalyList[timeList[i][j][3]] -> pivot){
-						if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
-							_anomalyList.emplace(timeList[i][j][6], newNode());
-							_anomalyList[timeList[i][j][6]] -> pivot = false;
-						}
-						(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
-						(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
-						++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
-						++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
-					}
+				if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
+					_anomalyList.emplace(timeList[i][j][3], newNode());
+					_anomalyList[timeList[i][j][3]] -> pivot = false;
+					_anomalyList[timeList[i][j][3]] -> total = node[timeList[i][j][3]];
 				}
-				else if(_anomalyList.find(timeList[i][j][6]) != _anomalyList.end()){
-					if(_anomalyList[timeList[i][j][6]] -> pivot){
-						if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
-							_anomalyList.emplace(timeList[i][j][3], newNode());
-							_anomalyList[timeList[i][j][3]] -> pivot = false;
-						}
-						(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
-						(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
-						++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
-						++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
-					}
+				if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
+					_anomalyList.emplace(timeList[i][j][6], newNode());
+					_anomalyList[timeList[i][j][6]] -> pivot = false;
+					_anomalyList[timeList[i][j][3]] -> total = node[timeList[i][j][3]];
+				}
+				
+				if(_anomalyList[timeList[i][j][3]] -> pivot){
+					(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
+					(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
+					++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
+					++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
+				}
+				if(_anomalyList[timeList[i][j][6]] -> pivot){
+					(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
+					(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
+					++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
+					++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
 				}
 			}
 		}
@@ -141,73 +127,6 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		
 	cout << "_anomalyList.size() after deleting: " << _anomalyList.size();
 }
-/*
-void
-BotDiscover::rebuild()
-{
-	int count = 0;
-				
-				}
-				else{
-					++node[timeList[i][j][3]];
-				}
-				if(node.insert(make_pair(timeList[i][j][6], 1)).second){
-				
-				}
-				else{
-					++node[timeList[i][j][6]];
-				}
-				
-			}
-		}
-	}
-	
-	for(map<string, SCG_Node*>::iterator it = _anomalyList.begin(); it != _anomalyList.end(); ++it){
-		const SCG_Node pvt = *(it -> second);
-		if(pvt.pivot){
-			cout << "_scgList.size() = " << _scgList.size() << endl;
-			if(_scgList.size() != count){
-				cout << "Error! _scgList.size() != count\n";
-				return;
-			}
-			if( !_scgList.insert( make_pair(it -> first, newNode(true, count)) ).second ){
-				--count;
-				//cout << "Failed~~~~~~~~~~~~~~~~~~~~~~~Node:" << it -> first << "e" << endl;
-			}
-			else{
-				//cout << "Succeed~~~~~~~~~~~~~~~~~~~~~~~Node:" << it -> first << "e" << endl;
-			}
-			
-			for(size_t i = 0; i < pvt.out_list.size(); ++i){
-				for(set<string>::iterator it1 = pvt.out_list[i].begin(); it1 != pvt.out_list[i].end(); ++ it1){
-					if(degreeOneFilter(*it1))continue;
-					if(_scgList.find(*it1) == _scgList.end()){
-						if( !_scgList.insert( make_pair(*it1, newNode(false, count)) ).second )
-							cout << "Error2 in BotDiscover::rebuild\n";
-						(*_anomalyList[*it1]).in_list[i].insert(it -> first);
-						_scgList[it -> first] -> out_list[i].insert(*it1);
-					}
-					else{
-						(_scgList.find(*it1) -> second -> in_list)[i].insert(it -> first);
-					}
-				}
-				
-				for(set<string>::iterator it1 = pvt.in_list[i].begin(); it1 != pvt.in_list[i].end(); ++ it1){
-					if(degreeOneFilter(*it1))continue;
-					if(_scgList.find(*it1) == _scgList.end()){
-						if(!_scgList.insert(make_pair(*it1, newNode(false, count))).second)
-							cout << "Error4 in BotDiscover::rebuild\n";
-						(*_anomalyList[*it1]).out_list[i].insert(it -> first);
-						_scgList[it -> first] -> in_list[i].insert(*it1);
-					}
-					else{
-						(_scgList.find(*it1) -> second -> out_list)[i].insert(it -> first);
-					}
-				}
-			}
-		}
-	}
-}*/
 
 void
 BotDiscover::setSCG2(const double tau)
@@ -304,9 +223,9 @@ SCG_Node*
 BotDiscover::newNode()
 {
 	SCG_Node* ptr = new SCG_Node;
-	ptr -> in_list = vector< set<string> >(_anomaly.size(), set<string>());
-	ptr -> out_list = vector< set<string> >(_anomaly.size(), set<string>());
-	ptr -> interaction = vector<double>(args.windowNumber, 0);
+	(ptr -> in_list).assign(_anomaly.size(), set<string>());
+	(ptr -> out_list).assign(_anomaly.size(), set<string>());
+	(ptr -> interaction).assign(args.windowNumber, 0);
 	return ptr;
 }
 

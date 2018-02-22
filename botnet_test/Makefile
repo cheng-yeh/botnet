@@ -1,6 +1,6 @@
 CC      = g++
 CFLAGS  = -Wall -g -std=c++11
-OBJECTS = Main.o Reader.o GraphDetector.o Writer.o BotDiscover.o util.o
+OBJECTS = Main.o Reader.o GraphDetector.o Writer.o BotDiscover.o Combo.o Graph.o util.o
 EXEC    = botnet
 
 default : $(EXEC)
@@ -22,6 +22,12 @@ Writer.o : Writer.cpp Writer.h
 
 BotDiscover.o : BotDiscover.cpp BotDiscover.h util.h
 	$(CC) $(CFLAGS) -c BotDiscover.cpp
+
+Combo.o : Combo.cpp Combo.h Graph.h
+	$(CC) $(CFLAGS) -c Combo.cpp
+
+Graph.o : Graph.cpp Graph.h
+	$(CC) $(CFLAGS) -c Graph.cpp
 	
 util.o : util.cpp util.h rnGen.h
 	$(CC) $(CFLAGS) -c util.cpp

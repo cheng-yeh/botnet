@@ -15,6 +15,7 @@
 #include "GraphDetector.h"
 //#include "FlowDetector.h"
 #include "BotDiscover.h"
+#include "Combo.h"
 
 using namespace std;
 
@@ -26,6 +27,7 @@ Reader* R = 0;
 Writer* W = 0;
 GraphDetector* GD = 0;
 BotDiscover* BD = 0;
+Combo* CB = 0;
 
 // options for getopt()
 static struct option long_options[] =
@@ -43,6 +45,7 @@ static struct option long_options[] =
 	{"Write-File",          required_argument, 0, 'j'},
 	{"Anomaly-Detection",   required_argument, 0, 'k'},
 	{"Bot-Detection",       required_argument, 0, 'l'},
+	{"Combo",               no_argument,       0, 'o'},
 	{"Scoring",             no_argument,       0, 'm'},
 	// help message	
 	{"help",                no_argument,       0, 'h'},
@@ -52,9 +55,9 @@ static struct option long_options[] =
 };
 
 // flags for operation precedence
-bool flag_allbot = false, flag_botone = false, flag_outputfile = false, 
-     flag_read_flow = false, flag_read_bot = false, flag_write_ref = false, flag_write_result = false,
-     flag_anomaly_flow = false, flag_anomaly_degree = false, flag_bot_scg = false, flag_scoring = false;
+bool flag_allbot = false, flag_botone = false, flag_outputfile = false, flag_read_flow = false, 
+     flag_read_bot = false, flag_write_ref = false, flag_write_result = false, flag_anomaly_flow = false,
+     flag_anomaly_degree = false, flag_bot_scg = false, flag_combo = false, flag_scoring = false;
 
 // forward declaration of operational functions
 bool reading(bool flag);
@@ -62,6 +65,7 @@ bool writing(int flag);
 bool anomaly_flow();
 bool anomaly_degree();
 bool bot_scg();
+bool combo();
 bool scoring();
  
 int main(int argc, char** argv)
@@ -186,7 +190,7 @@ int main(int argc, char** argv)
 				case 'h':
 					cout << "Usage: [--Read-File <flow | bot>] | [--Write-File <ref | result>] |\n"     
 				     	 << "       [--Anomaly-Detection <flow | degree>] | [--Bot-Detection <scg>] |\n"
-				     	 << "       [--Scoring] | [--help] | [--Quit]\n";
+				     	 << "       [--Combo] | [--Scoring] | [--help] | [--Quit]\n";
 					break;
 
 				case 'i':
@@ -211,7 +215,10 @@ int main(int argc, char** argv)
 					if(string(optarg) == "scg")flag_bot_scg = bot_scg();
 					else cout << "Command " << optarg << " not found.\n";
 					break;
-			
+				
+				case 'o':
+					flag_combo = combo();
+					break;
 				case 'm':
 					flag_scoring = scoring();
 					break;
@@ -341,14 +348,24 @@ bool bot_scg(){
 	if(flag_anomaly_degree || flag_anomaly_flow){
 		if(BD == 0){
 			BD = new BotDiscover(GD -> getAnomaly(), GD -> getTimeList());
-			BD -> setSCG2();
 		}
+		BD -> setSCG2();
 		return true;
 	}
 	cout << "Need to do [--Anomaly <flow>] or [--Anomaly <degree>] first.\n";
 	return false;
 }
 
+bool combo(){
+	if(flag_bot_scg){
+		if(CB == 0)
+			CB = new Combo();
+		CB -> RunCombo(size_t(2), BD -> get_SCG());
+		return true;
+	}
+	cout << "Need to do [--Bot-Detection <scg>] first.\n";
+	return false;
+}
 bool scoring(){
 	if(flag_read_bot){
 		bool flag;
