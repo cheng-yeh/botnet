@@ -15,7 +15,7 @@
 #include "GraphDetector.h"
 //#include "FlowDetector.h"
 #include "BotDiscover.h"
-#include "Combo.h"
+#include "Combo_beta.h"
 
 using namespace std;
 
@@ -23,11 +23,12 @@ using namespace std;
 globalArg args;
 
 // instance of related classes
-Reader* R = 0;
-Writer* W = 0;
-GraphDetector* GD = 0;
-BotDiscover* BD = 0;
-Combo* CB = 0;
+Reader R = Reader();
+Writer W = Writer();
+GraphDetector GD = GraphDetector();
+BotDiscover BD;
+Combo CB = Combo();
+Graph G = Graph();
 
 // options for getopt()
 static struct option long_options[] =
@@ -239,7 +240,6 @@ int main(int argc, char** argv)
 bool reading(bool flag){
 	string target;
 	
-	if(R == 0)R = new Reader();
 	if(flag){
 		target = args.totalList;
 	}
@@ -256,7 +256,7 @@ bool reading(bool flag){
 	string ext1 = target.substr(target.rfind('.'), target.length() - target.rfind('.'));
 	if(flag){
 		if(ext1 == ".binetflow")
-			R -> ReadFromBinetflow(target);
+			R.ReadFromBinetflow(target);
 		else{
 			cout << "Must provide --totalList <(fileName)> with a binetfile.\n";
 			return false;
@@ -264,7 +264,7 @@ bool reading(bool flag){
 	}
 	else{
 		if(ext1 == ".txt" || ext1 == "")
-			R -> ReadFromBotList(target);
+			R.ReadFromBotList(target);
 		else{
 			cout << "Must provide --botList <(fileName)> with a text file.\n";
 			return false;
@@ -281,8 +281,7 @@ bool writing(int flag){
 		if(flag == 0){
 			if(flag_botone){
 				if(ext == ".txt"){
-					if(W == 0)W = new Writer();
-					W -> GroundTruthWriter( R -> getRawData(), args.botOne, args.outputFile );
+					W.GroundTruthWriter( R.getRawData(), args.botOne, args.outputFile );
 					return true;
 				}
 				else{
@@ -295,8 +294,7 @@ bool writing(int flag){
 		else{
 			if(flag_bot_scg){
 				if(ext == ".dat"){
-					if(W == 0)W = new Writer();
-					W -> SADPWriter( BD -> get_SCG(), args.outputFile );
+					W.SADPWriter( BD.get_SCG(), args.outputFile );
 					return true;
 				}
 				else{
@@ -326,17 +324,16 @@ bool anomaly_flow(){
 
 bool anomaly_degree(){
 	if(flag_read_flow){
-		if(GD == 0)GD = new GraphDetector();
-		R -> rawToTimelist(GD -> _timeList);
-		cout << "timeList.size() = " << (GD -> _timeList).size() << endl;
-		cout << "timeList[0].size() = " << (GD -> _timeList[0].size()) << endl;
-		GD -> timelistToIntergraph();
-		//GD -> readGraph(R -> getRawData(), false);
+		R.rawToTimelist(GD._timeList);
+		cout << "timeList.size() = " << (GD._timeList).size() << endl;
+		cout << "timeList[0].size() = " << (GD._timeList[0].size()) << endl;
+		GD.timelistToIntergraph();
+		//GD.readGraph(R.getRawData(), false);
 		//cout << "Start selecting\n";
-		//GD -> selectModel();
+		//GD.selectModel();
 		cout << "Start detecting\n";
 		vector<size_t> anomaly;
-		GD -> detect(anomaly);
+		GD.detect(anomaly);
 		return true;
 	}
 	
@@ -346,10 +343,8 @@ bool anomaly_degree(){
 
 bool bot_scg(){
 	if(flag_anomaly_degree || flag_anomaly_flow){
-		if(BD == 0){
-			BD = new BotDiscover(GD -> getAnomaly(), GD -> getTimeList());
-		}
-		BD -> setSCG2();
+		if(!flag_bot_scg)BD = BotDiscover(GD.getAnomaly(), GD.getTimeList());
+		BD.setSCG2();
 		return true;
 	}
 	cout << "Need to do [--Anomaly <flow>] or [--Anomaly <degree>] first.\n";
@@ -358,9 +353,8 @@ bool bot_scg(){
 
 bool combo(){
 	if(flag_bot_scg){
-		if(CB == 0)
-			CB = new Combo();
-		CB -> RunCombo(size_t(2), BD -> get_SCG());
+		G.setMatrix(BD.get_SCG());
+		CB.RunCombo(G, size_t(2));
 		return true;
 	}
 	cout << "Need to do [--Bot-Detection <scg>] first.\n";
@@ -377,14 +371,14 @@ bool scoring(){
 			flag = true;
 		}
 		if(flag_bot_scg){
-			const vector<string>& result = BD -> get_ipList();
-			const vector< set<string> >& time = (flag) ? timeList2Set(GD -> getTimeList()) : timeList2Set(GD -> getTimeList());
+			const vector<string>& result = BD.get_ipList();
+			const vector< set<string> >& time = (flag) ? timeList2Set(GD.getTimeList()) : timeList2Set(GD.getTimeList());
 			
-			cout << "FPR = " << FPR(result, R -> getBotList(), time, GD -> getAnomaly());
-			cout << "Recall = " << recall(result, R -> getBotList(), time, GD -> getAnomaly());
-			cout << "Precision = " << precision(result, R -> getBotList(), time, GD -> getAnomaly());
-			cout << "F1-score = " << f1_score(result, R -> getBotList(), time, GD -> getAnomaly());
-			cout << "G-score = " << g_score(result, R -> getBotList(), time, GD -> getAnomaly());
+			cout << "FPR = " << FPR(result, R.getBotList(), time, GD.getAnomaly());
+			cout << "Recall = " << recall(result, R.getBotList(), time, GD.getAnomaly());
+			cout << "Precision = " << precision(result, R.getBotList(), time, GD.getAnomaly());
+			cout << "F1-score = " << f1_score(result, R.getBotList(), time, GD.getAnomaly());
+			cout << "G-score = " << g_score(result, R.getBotList(), time, GD.getAnomaly());
 			return true;
 		}
 	}

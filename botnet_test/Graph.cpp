@@ -55,7 +55,7 @@ void Graph::setMatrix(const vector< vector<double> >& adj)
 	m_matrix = adj;
 }
 
-double Graph::EdgeWeight(int i, int j) const
+double Graph::EdgeWeight(size_t i, size_t j) const
 {
 	return m_matrix[i][j];
 }
@@ -66,41 +66,41 @@ void Graph::CalcModMtrix()
 		return;
 
 	m_modMatrix.assign(m_size, vector<double>(m_size, 0.0));
-	for(int i = 0; i < m_size; ++i)
-		for(int j = 0; j < m_size; ++j)
+	for(size_t i = 0; i < m_size; ++i)
+		for(size_t j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] = EdgeWeight(i, j) / m_totalWeight;
 	
 	vector<double> sumQ2(m_size, 0.0);
 	vector<double> sumQ1(m_size, 0.0);
-	for(int i = 0; i < m_size; ++i)
-		for(int j = 0; j < m_size; ++j)
+	for(size_t i = 0; i < m_size; ++i)
+		for(size_t j = 0; j < m_size; ++j)
 		{
 			sumQ1[i] += m_modMatrix[i][j];
 			sumQ2[j] += m_modMatrix[i][j];
 		}
-	for(int i = 0; i < m_size; ++i)
-		for(int j = 0; j < m_size; ++j)
+	for(size_t i = 0; i < m_size; ++i)
+		for(size_t j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] -= sumQ1[i]*sumQ2[j];
-	for(int i = 0; i < m_size; ++i)
-		for(int j = 0; j < m_size; ++j)
+	for(size_t i = 0; i < m_size; ++i)
+		for(size_t j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] = m_modMatrix[j][i] = (m_modMatrix[i][j] + m_modMatrix[j][i]) / 2;
 }
 
 void Graph::Print() const
 {
 	cout << "Matrix:" << endl;
-	for(int i = 0; i < m_size; ++i)
+	for(size_t i = 0; i < m_size; ++i)
 	{
-		for(int j = 0; j < m_size; ++j)
+		for(size_t j = 0; j < m_size; ++j)
 		{
 			cout << m_matrix[i][j] << '\t';
 		}
 		cout << endl;
 	}
 	cout << "Modularity matrix:" << endl;
-	for(int i = 0; i < m_size; ++i)
+	for(size_t i = 0; i < m_size; ++i)
 	{
-		for(int j = 0; j < m_size; ++j)
+		for(size_t j = 0; j < m_size; ++j)
 		{
 			cout << m_modMatrix[i][j] << '\t';
 		}
@@ -113,12 +113,12 @@ void Graph::PrintCommunity(const string& fileName) const
 	ofstream file(fileName.c_str());
 	if(!file.is_open())
 		return;
-	for(int i = 0; i < m_size; ++i)
+	for(size_t i = 0; i < m_size; ++i)
 		file << m_communities[i] << endl;
 	file.close();
 }
 
-void Graph::SetCommunities(const vector<int>& new_communities, int number)
+void Graph::SetCommunities(const vector<size_t>& new_communities, int number)
 {
 	if(m_size != new_communities.size())
 		return;
@@ -132,38 +132,38 @@ void Graph::SetCommunities(const vector<int>& new_communities, int number)
 double Graph::Modularity() const
 {
 	double mod = 0;
-	for(int i = 0; i < m_modMatrix.size(); ++i)
-		for(int j = 0; j < m_modMatrix.size(); ++j)
+	for(size_t i = 0; i < m_modMatrix.size(); ++i)
+		for(size_t j = 0; j < m_modMatrix.size(); ++j)
 			if(m_communities[i] == m_communities[j])
 				mod += m_modMatrix[i][j];
 	return mod;
 }
 
-void Graph::PerformSplit(int origin, int dest, const vector<int>& split_communities)
+void Graph::PerformSplit(size_t origin, size_t dest, const vector<int>& split_communities)
 {
 	if(dest > m_communityNumber)
 		dest = m_communityNumber;
 	if(dest == m_communityNumber)
 		++m_communityNumber;
-	for(int i = 0; i < m_size; ++i)
+	for(size_t i = 0; i < m_size; ++i)
 		if(m_communities[i] == origin && split_communities[i])
 			m_communities[i] = dest;
 }
 
-bool Graph::IsCommunityEmpty(int comm) const
+bool Graph::IsCommunityEmpty(size_t comm) const
 {
-	for(int i = 0; i < m_size; ++i)
+	for(size_t i = 0; i < m_size; ++i)
 		if(m_communities[i] == comm)
 			return false;
 	return true;
 }
 
-bool Graph::DeleteCommunityIfEmpty(int comm)
+bool Graph::DeleteCommunityIfEmpty(size_t comm)
 {
 	if(IsCommunityEmpty(comm))
 	{
 		set<int> comms;
-        for(int i = 0; i < m_size; ++i)
+        for(size_t i = 0; i < m_size; ++i)
 		{
 			if(m_communities[i] > comm)
 				--m_communities[i];
@@ -175,10 +175,10 @@ bool Graph::DeleteCommunityIfEmpty(int comm)
 	return false;
 }
 
-vector<int> Graph::CommunityIndices(int comm) const
+vector<size_t> Graph::CommunityIndices(size_t comm) const
 {
-	vector<int> res;
-	for(int i = 0; i < m_size; ++i)
+	vector<size_t> res;
+	for(size_t i = 0; i < m_size; ++i)
 	{
 		if(m_communities[i] == comm)
 			res.push_back(i);
@@ -186,20 +186,20 @@ vector<int> Graph::CommunityIndices(int comm) const
 	return res;
 }
 
-vector< vector<double> > Graph::GetModularitySubmatrix(const vector<int>& indices) const
+vector< vector<double> > Graph::GetModularitySubmatrix(const vector<size_t>& indices) const
 {
 	vector< vector<double> > res(indices.size(), vector<double>(indices.size()));
-	for(int i = 0; i < indices.size(); ++i)
-		for(int j = 0; j < indices.size(); ++j)
+	for(size_t i = 0; i < indices.size(); ++i)
+		for(size_t j = 0; j < indices.size(); ++j)
 			res[i][j] = m_modMatrix[indices[i]][indices[j]];
 	return res;
 }
 
-vector<double> Graph::GetCorrectionVector(const vector<int>& origCommInd, const vector<int>& destCommInd) const
+vector<double> Graph::GetCorrectionVector(const vector<size_t>& origCommInd, const vector<size_t>& destCommInd) const
 {
 	vector<double> res(origCommInd.size(), 0.0);
-	for(int i = 0; i < origCommInd.size(); ++i)
-		for(int j = 0; j < destCommInd.size(); ++j)
+	for(size_t i = 0; i < origCommInd.size(); ++i)
+		for(size_t j = 0; j < destCommInd.size(); ++j)
 			res[i] += m_modMatrix[destCommInd[j]][origCommInd[i]];
 	return res;
 }
