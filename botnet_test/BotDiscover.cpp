@@ -84,25 +84,21 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 					//_anomalyList.emplace(timeList[i][j][6], newNode());
 					_anomalyList.emplace(timeList[i][j][6], SCG_Node());
 					_anomalyList[ timeList[i][j][6] ].pivot = false;
-					_anomalyList[ timeList[i][j][3] ].total = _interaction[ timeList[i][j][3] ];
-					_anomalyList[ timeList[i][j][3] ].interaction.assign(args.windowNumber, 0);
+					_anomalyList[ timeList[i][j][6] ].total = _interaction[ timeList[i][j][6] ];
+					_anomalyList[ timeList[i][j][6] ].interaction.assign(args.windowNumber, 0);
 				}
 				
 				if(_anomalyList[timeList[i][j][3] ].pivot){
 					//(_anomalyList[ timeList[i][j][3] ].out_list)[i].insert(timeList[i][j][6]);
 					//(_anomalyList[ timeList[i][j][6] ].in_list)[i].insert(timeList[i][j][3]);
-					cout << "haha1\n";
 					++(_anomalyList[ timeList[i][j][3] ].interaction)[i];
 					++(_anomalyList[ timeList[i][j][6] ].interaction)[i];
-					cout << "qq\n";
 				}
 				if(_anomalyList[timeList[i][j][6] ].pivot){
 					//(_anomalyList[ timeList[i][j][6] ].out_list)[i].insert(timeList[i][j][3]);
 					//(_anomalyList[ timeList[i][j][3] ].in_list)[i].insert(timeList[i][j][6]);
-					cout << "haha\n";
 					++(_anomalyList[ timeList[i][j][6] ].interaction)[i];
 					++(_anomalyList[ timeList[i][j][3] ].interaction)[i];
-					cout << "qq\n";
 				}
 			}
 		}
