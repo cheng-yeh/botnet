@@ -91,14 +91,18 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 				if(_anomalyList[timeList[i][j][3] ].pivot){
 					//(_anomalyList[ timeList[i][j][3] ].out_list)[i].insert(timeList[i][j][6]);
 					//(_anomalyList[ timeList[i][j][6] ].in_list)[i].insert(timeList[i][j][3]);
+					cout << "haha1\n";
 					++(_anomalyList[ timeList[i][j][3] ].interaction)[i];
 					++(_anomalyList[ timeList[i][j][6] ].interaction)[i];
+					cout << "qq\n";
 				}
 				if(_anomalyList[timeList[i][j][6] ].pivot){
 					//(_anomalyList[ timeList[i][j][6] ].out_list)[i].insert(timeList[i][j][3]);
 					//(_anomalyList[ timeList[i][j][3] ].in_list)[i].insert(timeList[i][j][6]);
+					cout << "haha\n";
 					++(_anomalyList[ timeList[i][j][6] ].interaction)[i];
 					++(_anomalyList[ timeList[i][j][3] ].interaction)[i];
+					cout << "qq\n";
 				}
 			}
 		}
