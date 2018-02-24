@@ -47,13 +47,13 @@ private:
 	
 	// statistic computation for SCGNode
 	double mean(const vector<double>& inter);
-	double deviation(const vector<double>& i);
-	double corelation_coefficient(const vector<double>& inter_i, const vector<double>& inter_j);
+	double deviation(const vector<double>& i, const double bar);
+	double corelation_coefficient(const vector<double>& inter_i, const vector<double>& inter_j, const double bar_i, const double bar_j);
 
 private:
 	vector<bool> _anomaly;
 	int _anomalyNumber;
-	map<string, SCG_Node> _anomalyList;
+	map<string, SCG_Node*> _anomalyList;
 	map<string, double> _interaction;
 	vector< vector<double> > _SCG;
 	vector<string> _ipList;
