@@ -63,6 +63,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 				cout << "Error in BotDiscover::setpivot\n";
 			_anomalyList[x.first].pivot = true;
 			_anomalyList[x.first].total = _interaction[x.first];
+			_anomalyList[x.first].interaction.assign(args.windowNumber, 0);
 			cout << x.first << " ";
 			cout << x.second / _anomalyNumber << endl;
 		}
@@ -77,12 +78,14 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 					_anomalyList.emplace(timeList[i][j][3], SCG_Node());
 					_anomalyList[ timeList[i][j][3] ].pivot = false;
 					_anomalyList[ timeList[i][j][3] ].total = _interaction[ timeList[i][j][3] ];
+					_anomalyList[ timeList[i][j][3] ].interaction.assign(args.windowNumber, 0);
 				}
 				if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
 					//_anomalyList.emplace(timeList[i][j][6], newNode());
 					_anomalyList.emplace(timeList[i][j][6], SCG_Node());
 					_anomalyList[ timeList[i][j][6] ].pivot = false;
 					_anomalyList[ timeList[i][j][3] ].total = _interaction[ timeList[i][j][3] ];
+					_anomalyList[ timeList[i][j][3] ].interaction.assign(args.windowNumber, 0);
 				}
 				
 				if(_anomalyList[timeList[i][j][3] ].pivot){
