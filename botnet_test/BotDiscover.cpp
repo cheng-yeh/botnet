@@ -59,8 +59,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	cout << "pivot:";
 	for(auto& x: _interaction){
 		if(x.second / _anomalyNumber > tau){
-			SCG_Node _node;
-			if(!_anomalyList.emplace(x.first, _node).second)
+			if(!_anomalyList.emplace(x.first, SCG_Node()).second)
 				cout << "Error in BotDiscover::setpivot\n";
 			_anomalyList[x.first].pivot = true;
 			_anomalyList[x.first].total = _interaction[x.first];
@@ -75,15 +74,13 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 			for(size_t j = 0; j < timeList[i].size(); ++j){
 				if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
 					//_anomalyList.emplace(timeList[i][j][3], newNode());
-					SCG_Node _node;
-					_anomalyList.emplace(timeList[i][j][3], _node);
+					_anomalyList.emplace(timeList[i][j][3], SCG_Node());
 					_anomalyList[ timeList[i][j][3] ].pivot = false;
 					_anomalyList[ timeList[i][j][3] ].total = _interaction[ timeList[i][j][3] ];
 				}
 				if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
 					//_anomalyList.emplace(timeList[i][j][6], newNode());
-					SCG_Node _node;
-					_anomalyList.emplace(timeList[i][j][6], _node);
+					_anomalyList.emplace(timeList[i][j][6], SCG_Node());
 					_anomalyList[ timeList[i][j][6] ].pivot = false;
 					_anomalyList[ timeList[i][j][3] ].total = _interaction[ timeList[i][j][3] ];
 				}
