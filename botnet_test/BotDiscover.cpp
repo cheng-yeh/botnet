@@ -102,7 +102,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	// print pivots and their total interaction
 	for(auto& x: _anomalyList)
 		if(x.second -> pivot)
-			cout << x.first << ":" << mean(x.first) << endl;
+			cout << x.first << ":" << mean(x.second -> interaction) << endl;
 	cout << "scg3\n";
 	cout << "_anomalyList.size = " << _anomalyList.size();
 
@@ -142,7 +142,7 @@ BotDiscover::setSCG2(const double tau)
 		temp_ipList[it1 -> second -> id] = it1 -> first;
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
 			if(it1 == it2)continue;
-			if(corelation_coefficient(it1 -> first, it2 -> first) > tau){
+			if(corelation_coefficient(it1 -> second -> interaction, it2 -> second -> interaction) > tau){
 				++debug;
 				//if(debug % 10000 == 0)cout << "debug = " << debug;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
@@ -223,9 +223,8 @@ BotDiscover::deleteNode(SCG_Node*& ptr)
 }
 
 double
-BotDiscover::mean(const string& i)
+BotDiscover::mean(const vector<double>& inter)
 {
-	const vector<double>& inter = _anomalyList[i] -> interaction;
 	double count = 0;
 	for(size_t k = 0; k < inter.size(); ++k)
 		if(_anomaly[k])
@@ -235,10 +234,9 @@ BotDiscover::mean(const string& i)
 }
 
 double
-BotDiscover::deviation(const string& i)
+BotDiscover::deviation(const vector<double>& inter)
 {
-	const vector<double>& inter = _anomalyList[i] -> interaction;
-	double bar = mean(i);
+	double bar = mean(inter);
 	double count = 0;
 	for(size_t k = 0; k < inter.size(); ++k)
 		if(_anomaly[k])
@@ -248,16 +246,14 @@ BotDiscover::deviation(const string& i)
 }
 
 double
-BotDiscover::corelation_coefficient(const string& i, const string& j)
+BotDiscover::corelation_coefficient(const vector<double>& inter_i, const vector<double>& inter_j)
 {
-	const vector<double>& inter_i = _anomalyList[i] -> interaction;
-	const vector<double>& inter_j = _anomalyList[j] -> interaction;
-	double bar_i = mean(i);
-	double bar_j = mean(j);
+	double bar_i = mean(inter_i);
+	double bar_j = mean(inter_j);
 	double count = 0;
 	for(size_t k = 0; k < inter_i.size(); ++k)
 		if(_anomaly[k])
 			count += (inter_i[k] - bar_i) * (inter_j[k] - bar_j);
 	
-	return count / ( (_anomalyNumber - 1) * deviation(i) * deviation(j) );
+	return count / ( (_anomalyNumber - 1) * deviation(inter_i) * deviation(inter_j) );
 }

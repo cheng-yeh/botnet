@@ -46,9 +46,9 @@ private:
 	void deleteNode(SCG_Node*& ptr);
 	
 	// statistic computation for SCGNode
-	double mean(const string& i);
-	double deviation(const string& i);
-	double corelation_coefficient(const string& i, const string& j);
+	double mean(const vector<double>& inter);
+	double deviation(const vector<double>& i);
+	double corelation_coefficient(const vector<double>& inter_i, const vector<double>& inter_j);
 
 private:
 	vector<bool> _anomaly;
