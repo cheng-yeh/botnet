@@ -35,8 +35,6 @@ BotDiscover::~BotDiscover()
 void
 BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const double tau)
 {
-	// node for collect total interaction
-	map<string, double> node;
 	int count = 0;
 	
 	// compute total interaction
@@ -44,58 +42,58 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		if(_anomaly[i]){
 			++_anomalyNumber;
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(node.find(timeList[i][j][3]) == node.end())
-					node[timeList[i][j][3]] = 1;
+				if(_interaction.find(timeList[i][j][3]) == _interaction.end())
+					_interaction[ timeList[i][j][3] ] = 1;
 				else
-					++node[timeList[i][j][3]];
+					++_interaction[ timeList[i][j][3] ];
 
-				if(node.find(timeList[i][j][6]) == node.end())
-					node[timeList[i][j][6]] = 1;
+				if(_interaction.find(timeList[i][j][6]) == _interaction.end())
+					_interaction[ timeList[i][j][6] ] = 1;
 				else
-					++node[timeList[i][j][6]];
+					++_interaction[ timeList[i][j][6] ];
 			}
 		}
 	}
 	
 	// select pivots and create _anomalyList
 	cout << "pivot:";
-	for(auto& x: node){
+	for(auto& x: _interaction){
 		if(x.second / _anomalyNumber > tau){
 			if(!_anomalyList.emplace(x.first, newNode()).second)
 				cout << "Error in BotDiscover::setpivot\n";
 			_anomalyList[x.first] -> pivot = true;
-			_anomalyList[x.first] -> total = node[x.first];
+			_anomalyList[x.first] -> total = _interaction[x.first];
 			cout << x.first << " ";
 			cout << x.second / _anomalyNumber << endl;
 		}
 	}
 	
-	// compute interactions with pivots
+	// compute _interactions with pivots
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
 				if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
 					_anomalyList.emplace(timeList[i][j][3], newNode());
-					_anomalyList[timeList[i][j][3]] -> pivot = false;
-					_anomalyList[timeList[i][j][3]] -> total = node[timeList[i][j][3]];
+					_anomalyList[ timeList[i][j][3] ] -> pivot = false;
+					_anomalyList[ timeList[i][j][3] ] -> total = _interaction[ timeList[i][j][3] ];
 				}
 				if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
 					_anomalyList.emplace(timeList[i][j][6], newNode());
-					_anomalyList[timeList[i][j][6]] -> pivot = false;
-					_anomalyList[timeList[i][j][3]] -> total = node[timeList[i][j][3]];
+					_anomalyList[ timeList[i][j][6] ] -> pivot = false;
+					_anomalyList[ timeList[i][j][3] ] -> total = _interaction[ timeList[i][j][3] ];
 				}
 				
-				if(_anomalyList[timeList[i][j][3]] -> pivot){
-					(_anomalyList[timeList[i][j][3]] -> out_list)[i].insert(timeList[i][j][6]);
-					(_anomalyList[timeList[i][j][6]] -> in_list)[i].insert(timeList[i][j][3]);
-					++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
-					++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
+				if(_anomalyList[timeList[i][j][3] ] -> pivot){
+					(_anomalyList[ timeList[i][j][3] ] -> out_list)[i].insert(timeList[i][j][6]);
+					(_anomalyList[ timeList[i][j][6] ] -> in_list)[i].insert(timeList[i][j][3]);
+					++(_anomalyList[ timeList[i][j][3] ] -> interaction)[i];
+					++(_anomalyList[ timeList[i][j][6] ] -> interaction)[i];
 				}
-				if(_anomalyList[timeList[i][j][6]] -> pivot){
-					(_anomalyList[timeList[i][j][6]] -> out_list)[i].insert(timeList[i][j][3]);
-					(_anomalyList[timeList[i][j][3]] -> in_list)[i].insert(timeList[i][j][6]);
-					++(_anomalyList[timeList[i][j][6]] -> interaction)[i];
-					++(_anomalyList[timeList[i][j][3]] -> interaction)[i];
+				if(_anomalyList[timeList[i][j][6] ] -> pivot){
+					(_anomalyList[ timeList[i][j][6] ] -> out_list)[i].insert(timeList[i][j][3]);
+					(_anomalyList[ timeList[i][j][3] ] -> in_list)[i].insert(timeList[i][j][6]);
+					++(_anomalyList[ timeList[i][j][6] ] -> interaction)[i];
+					++(_anomalyList[ timeList[i][j][3] ] -> interaction)[i];
 				}
 			}
 		}
@@ -183,18 +181,6 @@ BotDiscover::setSCG2(const double tau)
 			cout << _SCG[i][j] << " ";
 		cout << endl;
 	}
-}
-
-vector< vector<double> >
-BotDiscover::get_SCG() const
-{
-	return _SCG;
-}
-
-vector<string>
-BotDiscover::get_ipList() const
-{
-	return _ipList;
 }
 
 bool

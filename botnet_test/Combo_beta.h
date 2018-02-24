@@ -25,6 +25,7 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <map>
 
 #include "Graph.h"
 
@@ -37,14 +38,16 @@ class Combo{
 public:
 	Combo(double w1 = 1, double w2 = 1);
 	~Combo();
+	void setInteraction(const map<string, double>& total);
 	void RunCombo(Graph& G, size_t max_comunities);
+
+private:
 	void reCalc(Graph& G, vector< vector<double> >& moves, vector< vector<int> >& splits_communities, size_t origin, size_t dest);
 	double Split(vector< vector<double> >& Q, const vector<double>& correctionVector, vector<int>& splitCommunity);
 	double PerformKernighansShift(const vector< vector<double> >& Q, const vector<double>& correctionVector, const vector<int>& communitiesOld, vector<int>& communitiesNew);
 	double ModGain(const vector< vector<double> >& Q, const vector<double>& correctionVector, const vector<int>& community);
 	double BestGain(const vector< vector<double> >& moves, size_t& origin, size_t& dest);
 	void DeleteEmptyCommunities(Graph& G, vector< vector<double> >& moves, vector< vector<int> >& splits_communities, int origin);
-
 	vector<double> Sum(const vector< vector<double> >& matrix);
 	
 private:
@@ -57,6 +60,7 @@ private:
 	double best_gain = 1.0;
 	
 	// parameters
+	map<string, double> _total;
 	double _w1, _w2;
 	 
 	
