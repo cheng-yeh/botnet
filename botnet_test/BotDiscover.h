@@ -53,7 +53,7 @@ private:
 private:
 	vector<bool> _anomaly;
 	int _anomalyNumber;
-	map<string, SCG_Node*> _anomalyList;
+	map<string, SCG_Node> _anomalyList;
 	map<string, double> _interaction;
 	vector< vector<double> > _SCG;
 	vector<string> _ipList;
