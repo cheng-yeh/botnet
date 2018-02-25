@@ -80,7 +80,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 				if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
 					_anomalyList.emplace(timeList[i][j][6], newNode());
 					_anomalyList[ timeList[i][j][6] ] -> pivot = false;
-					_anomalyList[ timeList[i][j][3] ] -> total = _interaction[ timeList[i][j][3] ] / _anomalyNumber;
+					_anomalyList[ timeList[i][j][6] ] -> total = _interaction[ timeList[i][j][6] ] / _anomalyNumber;
 				}
 				
 				if(_anomalyList[ timeList[i][j][3] ] -> pivot){
@@ -237,10 +237,10 @@ double
 BotDiscover::deviation(const vector<double>& inter, const double bar)
 {
 	double count = 0;
-	for(size_t k = 0; k < inter.size(); ++k)
+	for(size_t k = 0; k < inter.size(); ++k){
 		if(_anomaly[k])
 			count += pow( (inter[k] - bar), 2 );
-	
+	}
 	return sqrt( count / (_anomalyNumber - 1) );
 }
 
@@ -249,8 +249,8 @@ BotDiscover::corelation_coefficient(const vector<double>& inter_i, const vector<
 {
 	double count = 0;
 	for(size_t k = 0; k < inter_i.size(); ++k)
-		if(_anomaly[k])
+		if(_anomaly[k]){
 			count += (inter_i[k] - bar_i) * (inter_j[k] - bar_j);
-
+		}
 	return count / ( (_anomalyNumber - 1) * deviation(inter_i, bar_i) * deviation(inter_j, bar_j) );
 }

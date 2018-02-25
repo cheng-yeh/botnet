@@ -333,6 +333,7 @@ bool anomaly_degree(){
 		//GD.selectModel();
 		cout << "Start detecting\n";
 		vector<size_t> anomaly;
+		cout << "Check degree\n";
 		GD.detect(anomaly);
 		return true;
 	}

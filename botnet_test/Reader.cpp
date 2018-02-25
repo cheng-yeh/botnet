@@ -35,9 +35,10 @@ Reader::ReadFromBinetflow(const std::string& fname)
 	
 	// skip the first line
 	file.getline(buff, 512);
-	
-	while(file.getline(buff, 512))
+	size_t maxline = 0;
+	while(file.getline(buff, 512) && maxline < 80000)
 	{
+		++maxline;
 		vector<string> data;
 		size_t pos = 0, end = -1;
 		string tok = "\0";
