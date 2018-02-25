@@ -142,7 +142,7 @@ BotDiscover::setSCG2(const double tau)
 		temp_ipList[it1 -> second -> id] = it1 -> first;
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
 			if(it1 == it2)continue;
-			if(corelation_coefficient(it1 -> second -> interaction, it2 -> second -> interaction, it1 -> second -> total, it1 -> second -> total) > tau){
+			if(corelation_coefficient(it1 -> second -> interaction, it2 -> second -> interaction, it1 -> second -> total, it2 -> second -> total) > tau){
 				++debug;
 				//if(debug % 10000 == 0)cout << "debug = " << debug;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
@@ -239,7 +239,7 @@ BotDiscover::deviation(const vector<double>& inter, const double bar)
 	double count = 0;
 	for(size_t k = 0; k < inter.size(); ++k)
 		if(_anomaly[k])
-			count += pow((inter[k] - bar), 2);
+			count += pow( (inter[k] - bar), 2 );
 	
 	return sqrt( count / (_anomalyNumber - 1) );
 }
@@ -251,6 +251,6 @@ BotDiscover::corelation_coefficient(const vector<double>& inter_i, const vector<
 	for(size_t k = 0; k < inter_i.size(); ++k)
 		if(_anomaly[k])
 			count += (inter_i[k] - bar_i) * (inter_j[k] - bar_j);
-	
+
 	return count / ( (_anomalyNumber - 1) * deviation(inter_i, bar_i) * deviation(inter_j, bar_j) );
 }

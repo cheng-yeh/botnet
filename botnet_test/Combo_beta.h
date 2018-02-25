@@ -42,12 +42,12 @@ public:
 	void RunCombo(Graph& G, size_t max_comunities);
 
 private:
-	void reCalc(Graph& G, vector< vector<double> >& moves, vector< vector<int> >& splits_communities, size_t origin, size_t dest);
-	double Split(vector< vector<double> >& Q, const vector<double>& correctionVector, vector<int>& splitCommunity);
-	double PerformKernighansShift(const vector< vector<double> >& Q, const vector<double>& correctionVector, const vector<int>& communitiesOld, vector<int>& communitiesNew);
-	double ModGain(const vector< vector<double> >& Q, const vector<double>& correctionVector, const vector<int>& community);
+	void reCalc(Graph& G, vector< vector<double> >& moves, vector< vector<size_t> >& splits_communities, size_t origin, size_t dest);
+	double Split(vector< vector<double> >& Q, const vector<double>& correctionVector, vector<size_t>& splitCommunity);
+	double PerformKernighansShift(const vector< vector<double> >& Q, const vector<double>& correctionVector, const vector<size_t>& communitiesOld, vector<size_t>& communitiesNew);
+	double ModGain(const vector< vector<double> >& Q, const vector<double>& correctionVector, const vector<size_t>& community);
 	double BestGain(const vector< vector<double> >& moves, size_t& origin, size_t& dest);
-	void DeleteEmptyCommunities(Graph& G, vector< vector<double> >& moves, vector< vector<int> >& splits_communities, int origin);
+	void DeleteEmptyCommunities(Graph& G, vector< vector<double> >& moves, vector< vector<size_t> >& splits_communities, size_t origin);
 	vector<double> Sum(const vector< vector<double> >& matrix);
 	
 private:

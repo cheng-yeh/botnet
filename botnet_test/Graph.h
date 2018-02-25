@@ -47,7 +47,7 @@ public:
 	std::vector<size_t> Communities() const {return m_communities;};
 	std::vector<size_t> CommunityIndices(size_t comm) const;
 
-	void PerformSplit(size_t origin, size_t dest, const std::vector<int>& split_communities);
+	void PerformSplit(size_t origin, size_t dest, const std::vector<size_t>& split_communities);
 	bool DeleteCommunityIfEmpty(size_t comm);
 	void Print() const;
 	void PrintCommunity(const std::string& fileName) const;

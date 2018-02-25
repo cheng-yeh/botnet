@@ -139,7 +139,7 @@ double Graph::Modularity() const
 	return mod;
 }
 
-void Graph::PerformSplit(size_t origin, size_t dest, const vector<int>& split_communities)
+void Graph::PerformSplit(size_t origin, size_t dest, const vector<size_t>& split_communities)
 {
 	if(dest > m_communityNumber)
 		dest = m_communityNumber;
