@@ -15,7 +15,7 @@
 #include "GraphDetector.h"
 //#include "FlowDetector.h"
 #include "BotDiscover.h"
-#include "Combo_beta.h"
+#include "Combo.h"
 
 using namespace std;
 
