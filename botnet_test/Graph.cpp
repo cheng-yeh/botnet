@@ -52,7 +52,11 @@ Graph::~Graph(void)
 
 void Graph::setMatrix(const vector< vector<double> >& adj)
 {
+	m_size = adj.size();
 	m_matrix = adj;
+	for(size_t i = 0; i < m_size; ++i)
+		for(size_t j =0; j < m_size; ++j)
+			m_totalWeight += m_matrix[i][j];
 }
 
 double Graph::EdgeWeight(size_t i, size_t j) const

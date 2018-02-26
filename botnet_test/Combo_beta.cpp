@@ -39,12 +39,18 @@ void
 Combo::RunCombo(Graph& G, size_t max_comunities)
 {
 	G.CalcModMtrix();
+cout << G.Size() << endl;
+cout << "combo1\n";
 	G.SetCommunities(vector<size_t>(G.Size(), 0));
+cout << "combo1.25\n";
 	double currentMod = G.Modularity();
+cout << currentMod << endl;
+cout << "combo1.5\n";
+G.Print();
 	vector< vector<double> > moves(2, vector<double>(2, 0)); //results of splitting communities 
 	//vectors of boolean meaning that corresponding vertex should be moved to dest
 	vector< vector<size_t> > splits_communities(2, vector<size_t>(G.Size(), 0)); //best split vectors
-
+cout << "comba2\n";
 	size_t origin = 0, dest = 1;
 
 	reCalc(G, moves, splits_communities, origin, dest);
