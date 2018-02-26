@@ -356,7 +356,7 @@ bool combo(){
 	if(flag_bot_scg){
 		G.setMatrix(BD.get_SCG());
 		CB.setInteraction(BD.get_interaction());
-		CB.RunCombo(G, size_t(2));
+		CB.RunCombo(G, size_t(5));
 		cout << "Modularity = " << G.Modularity() << endl;
 		return true;
 	}
