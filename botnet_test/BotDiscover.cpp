@@ -185,7 +185,7 @@ BotDiscover::setSCG2(const double tau)
 }
 
 vector<double> 
-BotDiscover::get_pivotalInteraction()
+BotDiscover::convert_pivotalInteraction()
 {
 	vector<double> pivotal = vector<double>(_ipList.size(), 0);
 	for(size_t i = 0; i < _ipList.size(); ++i){
@@ -206,6 +206,10 @@ BotDiscover::get_pivotalInteraction()
 			}
 		}	
 	}
+	cout << "This is test version\n";
+	for(size_t i = 0 ; i < pivotal.size(); ++i)
+		cout << pivotal[i] << " ";
+	cout << endl;
 	return pivotal;
 }
 

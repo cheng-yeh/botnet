@@ -34,7 +34,9 @@ public:
 	// public get function
 	vector< vector<double> > get_SCG() const { return _SCG; }
 	vector<string> get_ipList() const { return _ipList; }
-	vector<double> get_pivotalInteraction();
+	
+	// conversion for specific use
+	vector<double> convert_pivotalInteraction();
 	
 private:
 	// filter

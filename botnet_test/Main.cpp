@@ -357,15 +357,12 @@ bool bot_scg(){
 bool combo(){
 	if(flag_bot_scg){
 		G.setMatrix(BD.get_SCG());
-		CB.setPivotalInteraction(BD.get_pivotalInteraction());
+		CB.setPivotalInteraction(BD.convert_pivotalInteraction());
 		CB.setWeight(1, 1);
-		CB.RunCombo(G, size_t(5));
+		CB.RunCombo(G, size_t(2));
 		cout << "Modularity = " << G.Modularity() << endl;
 		return true;
 	}
-	CB.RunCombo(G, size_t(2));
-	cout << "This is testing version\n";
-	return true;
 	cout << "Need to do [--Bot-Detection <scg>] first.\n";
 	return false;
 }

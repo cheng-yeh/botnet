@@ -60,7 +60,7 @@ void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const 
 	m_modMatrix.assign(m_size, vector<double>(m_size, 0));
 	vector<double> sumQ2(m_size, 0.0);
 	vector<double> sumQ1(m_size, 0.0);
-	for(int i = 0; i < src.size(); ++i)
+	for(size_t i = 0; i < src.size(); ++i)
 	{
 		m_modMatrix[src[i]-m][dst[i]-m] += weight[i] / m_totalWeight;
 		if(!m_isOriented)
@@ -74,11 +74,11 @@ void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const 
 			sumQ2[src[i]-m] += weight[i] / m_totalWeight;
 		}
 	}
-	for(int i = 0; i < m_size; ++i)
-		for(int j = 0; j < m_size; ++j)
+	for(size_t i = 0; i < m_size; ++i)
+		for(size_t j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] -= sumQ1[i]*sumQ2[j];
-	for(int i = 0; i < m_size; ++i)
-		for(int j = 0; j < m_size; ++j)
+	for(size_t i = 0; i < m_size; ++i)
+		for(size_t j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] = m_modMatrix[j][i] = (m_modMatrix[i][j] + m_modMatrix[j][i]) / 2;
 }
 
