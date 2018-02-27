@@ -45,9 +45,67 @@ Graph::Graph(void)
 	m_communityNumber = 0;
 }
 
-
 Graph::~Graph(void)
 {
+}
+
+void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const vector<double>& weight)
+{
+	int m = min(*min_element(src.begin(), src.end()), *min_element(dst.begin(), dst.end()));
+	if(m > 0)
+		m = 1;
+	m_size = 1 + max(*max_element(src.begin(), src.end()), *max_element(dst.begin(), dst.end())) - m;
+	if(!m_isOriented)
+		m_totalWeight *= 2;
+	m_modMatrix.assign(m_size, vector<double>(m_size, 0));
+	vector<double> sumQ2(m_size, 0.0);
+	vector<double> sumQ1(m_size, 0.0);
+	for(int i = 0; i < src.size(); ++i)
+	{
+		m_modMatrix[src[i]-m][dst[i]-m] += weight[i] / m_totalWeight;
+		if(!m_isOriented)
+			m_modMatrix[dst[i]-m][src[i]-m] += weight[i] / m_totalWeight;
+	
+		sumQ1[src[i]-m] += weight[i] / m_totalWeight;
+		sumQ2[dst[i]-m] += weight[i] / m_totalWeight;
+		if(!m_isOriented)
+		{
+			sumQ1[dst[i]-m] += weight[i] / m_totalWeight;
+			sumQ2[src[i]-m] += weight[i] / m_totalWeight;
+		}
+	}
+	for(int i = 0; i < m_size; ++i)
+		for(int j = 0; j < m_size; ++j)
+			m_modMatrix[i][j] -= sumQ1[i]*sumQ2[j];
+	for(int i = 0; i < m_size; ++i)
+		for(int j = 0; j < m_size; ++j)
+			m_modMatrix[i][j] = m_modMatrix[j][i] = (m_modMatrix[i][j] + m_modMatrix[j][i]) / 2;
+}
+
+void Graph::ReadFromEdgelist(const std::string& fname)
+{
+	ifstream file(fname.c_str());
+	if(!file.is_open())
+		return;
+	vector<int> src, dst;
+	vector<double> weight;
+	while(file.good())
+	{
+		char buff[256];
+		file.getline(buff, 255);
+		int s = -1, d = -1;
+		double w = 1.0;
+		sscanf(buff, "%d %d %lf", &s, &d, &w);
+		if(s != -1 && d != -1)
+		{
+			src.push_back(s);
+			dst.push_back(d);
+			weight.push_back(w);
+			m_totalWeight += w;
+		}
+	}
+	file.close();
+	FillModMatrix(src, dst, weight);
 }
 
 void Graph::setMatrix(const vector< vector<double> >& adj)

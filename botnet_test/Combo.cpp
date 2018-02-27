@@ -29,9 +29,16 @@ Combo::~Combo(){
 }
 
 void
-Combo::setInteraction(const map<string, double>& total)
+Combo::setPivotalInteraction(const vector<double>& pivotalInteraction)
 {
-	_total = total;
+	_pivotalInteraction = pivotalInteraction;
+}
+
+void
+Combo::setWeight(double w1, double w2)
+{
+	_w1 = w1;
+	_w2 = w2;
 }
 
 void
@@ -54,7 +61,7 @@ Combo::RunCombo(Graph& G, size_t max_comunities)
 
 	while(best_gain > THRESHOLD)
 	{
-		bool comunityAdded = dest >= G.CommunityNumber();
+		//bool comunityAdded = dest >= G.CommunityNumber();
 		G.PerformSplit(origin, dest, splits_communities[dest]);
 		if(debug_verify)
 		{
@@ -63,8 +70,8 @@ Combo::RunCombo(Graph& G, size_t max_comunities)
 			if(fabs(currentMod - oldMod - best_gain) > THRESHOLD)
 				cout << "ERROR\n";
 		}
-		if(comunityAdded && dest < max_comunities - 1)
-		{
+		/*if(comunityAdded && dest < max_comunities - 1)
+		{cout << "This should not be printed!\n";
 			if(dest >= moves.size() - 1)
 			{
 				for(size_t i = 0; i < moves.size(); ++i)
@@ -77,7 +84,7 @@ Combo::RunCombo(Graph& G, size_t max_comunities)
 				moves[i][dest+1] = moves[i][dest];
 				splits_communities[dest+1] = splits_communities[dest];
 			}
-		}
+		}*/
 
 		for(size_t i = 0; i < G.CommunityNumber() + (G.CommunityNumber() < max_comunities); ++i)
 		{
@@ -91,6 +98,7 @@ Combo::RunCombo(Graph& G, size_t max_comunities)
 		DeleteEmptyCommunities(G, moves, splits_communities, origin); //remove origin community if empty
 		best_gain = BestGain(moves, origin, dest);
 	}
+	cout << "Final modularity: " << G.Modularity() << endl;
 }
 
 void
@@ -190,7 +198,7 @@ Combo::PerformKernighansShift(const vector< vector<double> >& Q, const vector<do
 			gains[i] -= correctionVector[i];
 		else
 			gains[i] += correctionVector[i];
-		gains[i] *= 2;
+		gains[i] *= 4;
 	}
 	vector<double> gains_got(n, 0.0);
 	vector<size_t> gains_indexes(n, 0);
@@ -205,11 +213,11 @@ Combo::PerformKernighansShift(const vector< vector<double> >& Q, const vector<do
 			gains_got[i] = gains_got[i] + gains_got[i-1];
 		for(size_t j = 0; j < n; ++j)
 			if(communitiesNew[gains_ind] == communitiesNew[j])
-				gains[j] += 4 * Q[gains_ind][j];
+				gains[j] += 8 * Q[gains_ind][j];
 			else
-				gains[j] -= 4 * Q[gains_ind][j];
+				gains[j] -= 8 * Q[gains_ind][j];
 		communitiesNew[gains_ind] = !communitiesNew[gains_ind];
-		gains[gains_ind] = gains[gains_ind] - 2*n;
+		gains[gains_ind] = gains[gains_ind] - 4*n;
 	}
 	vector<double>::iterator it = max_element(gains_got.begin(), gains_got.end());
 	double mod_gain = *it;
@@ -237,7 +245,7 @@ Combo::ModGain(const vector< vector<double> >& Q, const vector<double>& correcti
 	{
 		for(size_t j = 0; j < n; ++j){
 			if(community[i] != community[j])
-				mod_gain -= Q[i][j];
+				mod_gain -= 3 * Q[i][j];
 			else
 				mod_gain += Q[i][j];
 		}
@@ -246,7 +254,7 @@ Combo::ModGain(const vector< vector<double> >& Q, const vector<double>& correcti
 	for(size_t i = 0; i < n; ++i)
 	{
 		if(community[i])
-			mod_gain += correctionVector[i];
+			mod_gain += 3 * correctionVector[i];
 		else
 			mod_gain -= correctionVector[i];
 	}

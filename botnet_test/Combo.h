@@ -38,7 +38,8 @@ class Combo{
 public:
 	Combo();
 	~Combo();
-	void setInteraction(const map<string, double>& total);
+	void setPivotalInteraction(const vector<double>& pivotalInteraction);
+	void setWeight(double w1 = 1, double w2 = 1);
 	void RunCombo(Graph& G, size_t max_comunities);
 	void reCalc(Graph& G, vector< vector<double> >& moves, vector< vector<size_t> >& splits_communities, size_t origin, size_t dest);
 	double Split(vector< vector<double> >& Q, const vector<double>& correctionVector, vector<size_t>& splitCommunity);
@@ -59,6 +60,6 @@ private:
 	double best_gain = 1.0;
 	
 	//
-	map<string, double> _total;
+	vector<double> _pivotalInteraction;
 	double _w1, _w2;
 };

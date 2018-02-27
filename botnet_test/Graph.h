@@ -30,7 +30,9 @@ class Graph
 public:
 	Graph(void);
 	virtual ~Graph(void);
-
+	
+	void ReadFromEdgelist(const std::string& fname);
+	
 	void setMatrix(const std::vector< std::vector<double> >& adj);
 	void CalcModMtrix();
 

@@ -32,9 +32,9 @@ public:
 	void setSCG2(const double tau = 0.0);
 
 	// public get function
-	map<string, double> get_interaction() const { return _interaction; }
 	vector< vector<double> > get_SCG() const { return _SCG; }
 	vector<string> get_ipList() const { return _ipList; }
+	vector<double> get_pivotalInteraction();
 	
 private:
 	// filter
@@ -56,8 +56,8 @@ private:
 private:
 	vector<bool> _anomaly;
 	int _anomalyNumber;
+	vector<string> _pivotList;
 	map<string, SCG_Node*> _anomalyList;
-	map<string, double> _interaction;
 	vector< vector<double> > _SCG;
 	vector<string> _ipList;
 };

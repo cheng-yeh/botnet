@@ -254,7 +254,7 @@ bool reading(bool flag){
 	}
 	
 	string ext1 = target.substr(target.rfind('.'), target.length() - target.rfind('.'));
-	if(flag){
+	/*if(flag){
 		if(ext1 == ".binetflow")
 			R.ReadFromBinetflow(target);
 		else{
@@ -269,7 +269,9 @@ bool reading(bool flag){
 			cout << "Must provide --botList <(fileName)> with a text file.\n";
 			return false;
 		}
-	}
+	}*/
+	G.ReadFromEdgelist(target);
+	cout << "this is test verion\n";
 	return true;
 }
 
@@ -355,11 +357,15 @@ bool bot_scg(){
 bool combo(){
 	if(flag_bot_scg){
 		G.setMatrix(BD.get_SCG());
-		CB.setInteraction(BD.get_interaction());
+		CB.setPivotalInteraction(BD.get_pivotalInteraction());
+		CB.setWeight(1, 1);
 		CB.RunCombo(G, size_t(5));
 		cout << "Modularity = " << G.Modularity() << endl;
 		return true;
 	}
+	CB.RunCombo(G, size_t(2));
+	cout << "This is testing version\n";
+	return true;
 	cout << "Need to do [--Bot-Detection <scg>] first.\n";
 	return false;
 }

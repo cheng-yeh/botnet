@@ -36,51 +36,52 @@ void
 BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const double tau)
 {
 	int count = 0;
-	
+	map<string, double> total;
 	// compute total interaction
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			++_anomalyNumber;
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(_interaction.find(timeList[i][j][3]) == _interaction.end())
-					_interaction[ timeList[i][j][3] ] = 1;
+				if(total.find(timeList[i][j][3]) == total.end())
+					total[ timeList[i][j][3] ] = 1;
 				else
-					++_interaction[ timeList[i][j][3] ];
+					++total[ timeList[i][j][3] ];
 
-				if(_interaction.find(timeList[i][j][6]) == _interaction.end())
-					_interaction[ timeList[i][j][6] ] = 1;
+				if(total.find(timeList[i][j][6]) == total.end())
+					total[ timeList[i][j][6] ] = 1;
 				else
-					++_interaction[ timeList[i][j][6] ];
+					++total[ timeList[i][j][6] ];
 			}
 		}
 	}
 	
 	// select pivots and create _anomalyList
 	cout << "pivot:";
-	for(auto& x: _interaction){
+	for(auto& x: total){
 		if(x.second / _anomalyNumber > tau){
+			_pivotList.push_back(x.first);
 			if(!_anomalyList.emplace(x.first, newNode()).second)
 				cout << "Error in BotDiscover::setpivot\n";
 			_anomalyList[x.first] -> pivot = true;
-			_anomalyList[x.first] -> total = _interaction[x.first] / _anomalyNumber;
+			_anomalyList[x.first] -> total = total[x.first] / _anomalyNumber;
 			cout << x.first << " ";
 			cout << x.second / _anomalyNumber << endl;
 		}
 	}
 	
-	// compute _interactions with pivots
+	// compute totals with pivots
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
 				if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
 					_anomalyList.emplace(timeList[i][j][3], newNode());
 					_anomalyList[ timeList[i][j][3] ] -> pivot = false;
-					_anomalyList[ timeList[i][j][3] ] -> total = _interaction[ timeList[i][j][3] ] / _anomalyNumber;
+					_anomalyList[ timeList[i][j][3] ] -> total = total[ timeList[i][j][3] ] / _anomalyNumber;
 				}
 				if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
 					_anomalyList.emplace(timeList[i][j][6], newNode());
 					_anomalyList[ timeList[i][j][6] ] -> pivot = false;
-					_anomalyList[ timeList[i][j][6] ] -> total = _interaction[ timeList[i][j][6] ] / _anomalyNumber;
+					_anomalyList[ timeList[i][j][6] ] -> total = total[ timeList[i][j][6] ] / _anomalyNumber;
 				}
 				
 				if(_anomalyList[ timeList[i][j][3] ] -> pivot){
@@ -181,6 +182,31 @@ BotDiscover::setSCG2(const double tau)
 			cout << _SCG[i][j] << " ";
 		cout << endl;
 	}
+}
+
+vector<double> 
+BotDiscover::get_pivotalInteraction()
+{
+	vector<double> pivotal = vector<double>(_ipList.size(), 0);
+	for(size_t i = 0; i < _ipList.size(); ++i){
+		for(size_t k = 0; k < _anomaly.size(); ++k){
+			if(_anomalyList[_ipList[i]] -> pivot){
+				for(auto& x: _anomalyList[_ipList[i]] -> out_list[k])
+					if(_anomalyList[x] -> pivot)
+						pivotal[i] += _anomalyList[x] -> total;
+				for(auto& x: _anomalyList[_ipList[i]] -> in_list[k])
+					if(_anomalyList[x] -> pivot)
+						pivotal[i] += _anomalyList[x] -> total;
+			}
+			else{
+				for(auto& x: _anomalyList[_ipList[i]] -> out_list[k])
+					pivotal[i] += _anomalyList[x] -> total;
+				for(auto& x: _anomalyList[_ipList[i]] -> in_list[k])
+					pivotal[i] += _anomalyList[x] -> total;
+			}
+		}	
+	}
+	return pivotal;
 }
 
 bool
