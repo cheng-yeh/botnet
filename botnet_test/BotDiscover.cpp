@@ -74,17 +74,18 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
 				for(int k = 0; k < 2; ++k){
-					if(_anomalyList.find(timeList[i][j][k ? 6 : 3]) == _anomalyList.end()){
-						_anomalyList.emplace(timeList[i][j][k ? 6 : 3], newNode());
-						_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> pivot = false;
-						_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> total = total[ timeList[i][j][k ? 6 : 3] ] / _anomalyNumber;
+					size_t k1 = k ? 6 : 3, k2 = k ? 3 : 6;
+					if(_anomalyList.find(timeList[i][j][k1]) == _anomalyList.end()){
+						_anomalyList.emplace(timeList[i][j][k1], newNode());
+						_anomalyList[ timeList[i][j][k1] ] -> pivot = false;
+						_anomalyList[ timeList[i][j][k1] ] -> total = total[ timeList[i][j][k1] ] / _anomalyNumber;
 					}
 
-					if(_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> pivot){
-						//(_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> out_list)[i].insert(timeList[i][j][k ? 3 : 6]);
-						//(_anomalyList[ timeList[i][j][k ? 3 : 6] ] -> in_list)[i].insert(timeList[i][j][k ? 6 : 3]);
-						++(_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> interaction)[i];
-						++(_anomalyList[ timeList[i][j][k ? 3 : 6] ] -> interaction)[i];
+					if(_anomalyList[ timeList[i][j][k1] ] -> pivot){
+						//(_anomalyList[ timeList[i][j][k1] ] -> out_list)[i].insert(timeList[i][j][k ? 3 : 6]);
+						//(_anomalyList[ timeList[i][j][k2] ] -> in_list)[i].insert(timeList[i][j][k ? 6 : 3]);
+						++(_anomalyList[ timeList[i][j][k1] ] -> interaction)[i];
+						++(_anomalyList[ timeList[i][j][k2] ] -> interaction)[i];
 					}
 				}
 			}
