@@ -122,8 +122,8 @@ void Graph::ReadFromEdgelist(const std::string& fname)
 		}
 	}
 	file.close();
-	//FillMatrix(src, dst, weight);
-	FillModMatrix(src, dst, weight);
+	FillMatrix(src, dst, weight);
+	//FillModMatrix(src, dst, weight);
 }
 
 void Graph::setMatrix(const vector< vector<double> >& adj)
