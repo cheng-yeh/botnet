@@ -49,6 +49,23 @@ Graph::~Graph(void)
 {
 }
 
+void Graph::FillMatrix(const vector<int>& src, const vector<int>& dst, const vector<double>& weight)
+{
+	int m = min(*min_element(src.begin(), src.end()), *min_element(dst.begin(), dst.end()));
+	if(m > 0)
+		m = 1;
+	if(!m_isOriented)
+		m_totalWeight *= 2;
+	m_size = 1 + max(*max_element(src.begin(), src.end()), *max_element(dst.begin(), dst.end())) - m;
+	m_matrix.assign(m_size, vector<double>(m_size, 0));
+	for(int i = 0; i < src.size(); ++i)
+	{
+		m_matrix[src[i]-m][dst[i]-m] += weight[i];
+		if(!m_isOriented)
+			m_matrix[dst[i]-m][src[i]-m] += weight[i];
+	}
+}
+
 void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const vector<double>& weight)
 {
 	int m = min(*min_element(src.begin(), src.end()), *min_element(dst.begin(), dst.end()));
@@ -105,6 +122,7 @@ void Graph::ReadFromEdgelist(const std::string& fname)
 		}
 	}
 	file.close();
+	//FillMatrix(src, dst, weight);
 	FillModMatrix(src, dst, weight);
 }
 
@@ -113,7 +131,7 @@ void Graph::setMatrix(const vector< vector<double> >& adj)
 	m_size = adj.size();
 	m_matrix = adj;
 	for(size_t i = 0; i < m_size; ++i)
-		for(size_t j =0; j < m_size; ++j)
+		for(size_t j = 0; j < m_size; ++j)
 			m_totalWeight += m_matrix[i][j];
 }
 
@@ -150,15 +168,15 @@ void Graph::CalcModMtrix()
 
 void Graph::Print() const
 {
-	cout << "Matrix:" << endl;
-	for(size_t i = 0; i < m_size; ++i)
-	{
-		for(size_t j = 0; j < m_size; ++j)
-		{
-			cout << m_matrix[i][j] << '\t';
-		}
-		cout << endl;
-	}
+	//cout << "Matrix:" << endl;
+	//for(size_t i = 0; i < m_size; ++i)
+	//{
+	//	for(size_t j = 0; j < m_size; ++j)
+	//	{
+	//		cout << m_matrix[i][j] << '\t';
+	//	}
+	//	cout << endl;
+	//}
 	cout << "Modularity matrix:" << endl;
 	for(size_t i = 0; i < m_size; ++i)
 	{
