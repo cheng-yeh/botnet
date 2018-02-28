@@ -353,7 +353,7 @@ bool bot_scg(){
 
 bool combo(){
 	if(flag_bot_scg){
-		//G.setMatrix(BD.get_SCG());
+		G.setMatrix(BD.get_SCG());
 cout << "c1\n";
 		CB.setPivotalInteraction(BD.convert_pivotalInteraction());
 cout << "c2\n";
