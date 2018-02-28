@@ -206,10 +206,11 @@ BotDiscover::convert_pivotalInteraction()
 			}
 		}	
 	}
-	cout << "This is test version\n";
-	for(size_t i = 0 ; i < pivotal.size(); ++i)
-		cout << pivotal[i] << " ";
-	cout << endl;
+	// normalization
+	double maxi = *max_element(pivotal.begin(), pivotal.end());
+	for(size_t i = 0 ; i < pivotal.size(); ++i){
+		pivotal[i] /= maxi;
+	}
 	return pivotal;
 }
 
