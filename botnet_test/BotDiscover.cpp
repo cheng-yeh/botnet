@@ -73,28 +73,19 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
-				if(_anomalyList.find(timeList[i][j][3]) == _anomalyList.end()){
-					_anomalyList.emplace(timeList[i][j][3], newNode());
-					_anomalyList[ timeList[i][j][3] ] -> pivot = false;
-					_anomalyList[ timeList[i][j][3] ] -> total = total[ timeList[i][j][3] ] / _anomalyNumber;
-				}
-				if(_anomalyList.find(timeList[i][j][6]) == _anomalyList.end()){
-					_anomalyList.emplace(timeList[i][j][6], newNode());
-					_anomalyList[ timeList[i][j][6] ] -> pivot = false;
-					_anomalyList[ timeList[i][j][6] ] -> total = total[ timeList[i][j][6] ] / _anomalyNumber;
-				}
-				
-				if(_anomalyList[ timeList[i][j][3] ] -> pivot){
-					//(_anomalyList[ timeList[i][j][3] ] -> out_list)[i].insert(timeList[i][j][6]);
-					//(_anomalyList[ timeList[i][j][6] ] -> in_list)[i].insert(timeList[i][j][3]);
-					++(_anomalyList[ timeList[i][j][3] ] -> interaction)[i];
-					++(_anomalyList[ timeList[i][j][6] ] -> interaction)[i];
-				}
-				if(_anomalyList[ timeList[i][j][6] ] -> pivot){
-					//(_anomalyList[ timeList[i][j][6] ] -> out_list)[i].insert(timeList[i][j][3]);
-					//(_anomalyList[ timeList[i][j][3] ] -> in_list)[i].insert(timeList[i][j][6]);
-					++(_anomalyList[ timeList[i][j][6] ] -> interaction)[i];
-					++(_anomalyList[ timeList[i][j][3] ] -> interaction)[i];
+				for(int k = 0; k < 2; ++k){
+					if(_anomalyList.find(timeList[i][j][k ? 6 : 3]) == _anomalyList.end()){
+						_anomalyList.emplace(timeList[i][j][k ? 6 : 3], newNode());
+						_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> pivot = false;
+						_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> total = total[ timeList[i][j][k ? 6 : 3] ] / _anomalyNumber;
+					}
+
+					if(_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> pivot){
+						//(_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> out_list)[i].insert(timeList[i][j][k ? 3 : 6]);
+						//(_anomalyList[ timeList[i][j][k ? 3 : 6] ] -> in_list)[i].insert(timeList[i][j][k ? 6 : 3]);
+						++(_anomalyList[ timeList[i][j][k ? 6 : 3] ] -> interaction)[i];
+						++(_anomalyList[ timeList[i][j][k ? 3 : 6] ] -> interaction)[i];
+					}
 				}
 			}
 		}
