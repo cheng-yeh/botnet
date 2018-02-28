@@ -254,7 +254,7 @@ bool reading(bool flag){
 	}
 	
 	string ext1 = target.substr(target.rfind('.'), target.length() - target.rfind('.'));
-	/*if(flag){
+	if(flag){
 		if(ext1 == ".binetflow")
 			R.ReadFromBinetflow(target);
 		else{
@@ -269,9 +269,7 @@ bool reading(bool flag){
 			cout << "Must provide --botList <(fileName)> with a text file.\n";
 			return false;
 		}
-	}*/
-	G.ReadFromEdgelist(target);
-	cout << "this is test verion\n";
+	}
 	return true;
 }
 
@@ -347,7 +345,6 @@ bool anomaly_degree(){
 bool bot_scg(){
 	if(flag_anomaly_degree || flag_anomaly_flow){
 		if(!flag_bot_scg)BD = BotDiscover(GD.getAnomaly(), GD.getTimeList());
-		BD.setSCG2();
 		return true;
 	}
 	cout << "Need to do [--Anomaly <flow>] or [--Anomaly <degree>] first.\n";
@@ -357,8 +354,11 @@ bool bot_scg(){
 bool combo(){
 	if(flag_bot_scg){
 		G.setMatrix(BD.get_SCG());
+cout << "c1\n";
 		CB.setPivotalInteraction(BD.convert_pivotalInteraction());
+cout << "c2\n";
 		CB.setWeight(1, 1);
+cout << "c3\n";
 		CB.RunCombo(G, size_t(2));
 		cout << "Modularity = " << G.Modularity() << endl;
 		return true;

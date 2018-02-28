@@ -45,7 +45,7 @@ private:
 	
 	// node operation
 	SCG_Node* newNode();
-	void deleteNode(SCG_Node*& ptr);
+	void deleteNode(string ip, SCG_Node*& ptr);
 
 	// 
 	//void boost(int a, const double tau);

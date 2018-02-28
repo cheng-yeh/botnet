@@ -44,8 +44,11 @@ Combo::setWeight(double w1, double w2)
 void
 Combo::RunCombo(Graph& G, size_t max_comunities)
 {
+cout << "combo1\n";
 	G.CalcModMtrix();
+cout << "combo2\n";
 	G.SetCommunities(vector<size_t>(G.Size(), 0));
+cout << "combo3\n";
 	double currentMod = G.Modularity();
 	cout << "Initial modularity: " << currentMod << endl;
 	vector< vector<double> > moves(2, vector<double>(2, 0)); //results of splitting communities 

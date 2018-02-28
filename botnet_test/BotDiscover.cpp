@@ -99,23 +99,20 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 			}
 		}
 	}
-	
 	// print pivots and their total interaction
 	for(auto& x: _anomalyList)
 		if(x.second -> pivot)
 			cout << x.first << ":" << mean(x.second -> interaction) << endl;
 	cout << "scg3\n";
 	cout << "_anomalyList.size = " << _anomalyList.size();
-
 	// delete nodes with degree less or equal to one
 	vector<string> removed;
 	for(auto& x: _anomalyList){
 		if(degreeOneFilter(x.first)){
-			deleteNode(x.second);
+			deleteNode(x.first, x.second);
 			removed.push_back(x.first);
 		}
 	}
-	
 	// delete node in _anomalyList
 	trimAnomalyList(removed);
 	
@@ -138,13 +135,14 @@ BotDiscover::setSCG2(const double tau)
 	
 	// construct SCG with respect to tau(threshold)
 	for(map<string, SCG_Node*>::iterator it1 = _anomalyList.begin(); it1 != _anomalyList.end(); ++it1){
-		if(1)cout << debug << endl;
+		if(debug % 100 == 0)cout << debug << endl;
 		// record IP list
 		temp_ipList[it1 -> second -> id] = it1 -> first;
 		for(map<string, SCG_Node*>::iterator it2 = it1; it2 != _anomalyList.end(); ++it2){
 			if(it1 == it2)continue;
+			++debug;
 			if(corelation_coefficient(it1 -> second -> interaction, it2 -> second -> interaction, it1 -> second -> total, it2 -> second -> total) > tau){
-				++debug;
+				//++debug;
 				//if(debug % 10000 == 0)cout << "debug = " << debug;
 				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
 				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << endl;
@@ -176,7 +174,7 @@ BotDiscover::setSCG2(const double tau)
 		}
 	}
 	
-	cout << "SCG:\n";
+	cout << "SCG  :\n";
 	for(size_t i = 0; i < _SCG.size(); ++i){
 		for(size_t j = 0; j < _SCG.size(); ++j)
 			cout << _SCG[i][j] << " ";
@@ -199,10 +197,12 @@ BotDiscover::convert_pivotalInteraction()
 						pivotal[i] += _anomalyList[x] -> total;
 			}
 			else{
-				for(auto& x: _anomalyList[_ipList[i]] -> out_list[k])
+				for(auto& x: _anomalyList[_ipList[i]] -> out_list[k]){
 					pivotal[i] += _anomalyList[x] -> total;
-				for(auto& x: _anomalyList[_ipList[i]] -> in_list[k])
+				}
+				for(auto& x: _anomalyList[_ipList[i]] -> in_list[k]){
 					pivotal[i] += _anomalyList[x] -> total;
+				}
 			}
 		}	
 	}
@@ -246,8 +246,14 @@ BotDiscover::newNode()
 }
 
 void
-BotDiscover::deleteNode(SCG_Node*& ptr)
-{
+BotDiscover::deleteNode(string ip, SCG_Node*& ptr)
+{	
+	for(size_t k = 0; k < _anomaly.size(); ++k){
+		for(auto& x: ptr -> out_list[k])
+			_anomalyList[x] -> in_list[k].erase(ip);
+		for(auto& x: ptr -> in_list[k])
+			_anomalyList[x] -> out_list[k].erase(ip);
+	}			
 	delete ptr;
 	ptr = 0;
 }
