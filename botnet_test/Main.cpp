@@ -357,7 +357,7 @@ bool combo(){
 cout << "c1\n";
 		CB.setPivotalInteraction(BD.convert_pivotalInteraction());
 cout << "c2\n";
-		CB.setWeight(1, 1);
+		CB.setWeight(1e-6, 1e-6);
 cout << "c3\n";
 		CB.RunCombo(G, size_t(2));
 		cout << "Modularity = " << G.Modularity() << endl;
