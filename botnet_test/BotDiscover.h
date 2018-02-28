@@ -36,12 +36,12 @@ public:
 	
 private:
 	// filter
-	bool degreeOneFilter(string node);
+	bool degreeOneFilter(const set<SCG_Node*>& neighbor);
 	void trimAnomalyList(vector<string>& removed);
 	
 	// node operation
 	SCG_Node* newNode();
-	void deleteNode(string ip, SCG_Node*& ptr);
+	void deleteNode(SCG_Node*& ptr);
 
 	// statistic computation for SCGNode
 	double mean(const vector<double>& inter);

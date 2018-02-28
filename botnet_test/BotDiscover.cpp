@@ -36,6 +36,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 {
 	int count = 0;
 	map<string, double> total;
+	map< string, set<SCG_Node*> > neighbor;
 	
 	// compute total interaction
 	for(size_t i = 0; i < _anomaly.size(); ++i){
@@ -74,18 +75,23 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
 				for(int k = 0; k < 2; ++k){
-					size_t k1 = k ? 6 : 3, k2 = k ? 3 : 6;
+					size_t k1 = k ? 6 : 3;
 					if(_anomalyList.find(timeList[i][j][k1]) == _anomalyList.end()){
 						_anomalyList.emplace(timeList[i][j][k1], newNode());
 						_anomalyList[ timeList[i][j][k1] ] -> pivot = false;
 						_anomalyList[ timeList[i][j][k1] ] -> total = total[ timeList[i][j][k1] ] / _anomalyNumber;
-					}
 
+						neighbor[ timeList[i][j][k1] ] = set<SCG_Node*>();
+					}
+				}
+				for(int k = 0; k < 2; ++k){
+					size_t k1 = k ? 6 : 3, k2 = k ? 3 : 6;
 					if(_anomalyList[ timeList[i][j][k1] ] -> pivot){
-						//(_anomalyList[ timeList[i][j][k1] ] -> out_list)[i].insert(timeList[i][j][k ? 3 : 6]);
-						//(_anomalyList[ timeList[i][j][k2] ] -> in_list)[i].insert(timeList[i][j][k ? 6 : 3]);
 						++(_anomalyList[ timeList[i][j][k1] ] -> interaction)[i];
 						++(_anomalyList[ timeList[i][j][k2] ] -> interaction)[i];
+						
+						neighbor[ timeList[i][j][k1] ].insert(_anomalyList[ timeList[i][j][k1] ]);
+						neighbor[ timeList[i][j][k2] ].insert(_anomalyList[ timeList[i][j][k1] ]);
 					}
 				}
 			}
@@ -101,9 +107,9 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 	// optional
 	// delete nodes with degree less or equal to one
 	vector<string> removed;
-	for(auto& x: _anomalyList){
-		if(degreeOneFilter(x.first)){
-			deleteNode(x.first, x.second);
+	for(auto& x: neighbor){
+		if(degreeOneFilter(x.second)){
+			deleteNode(_anomalyList[x.first]);
 			removed.push_back(x.first);
 		}
 	}
@@ -135,8 +141,8 @@ BotDiscover::setSCG2(const double tau)
 			++debug;
 			if(corelation_coefficient(it1 -> second -> interaction, it2 -> second -> interaction, it1 -> second -> total, it2 -> second -> total) > tau){
 				//++debug;
-				(it1 -> second -> out_list).insert(it2 -> second);
-				it2 -> second -> in_list.insert(it1 -> second);
+				//(it1 -> second -> out_list).insert(it2 -> second);
+				//it2 -> second -> in_list.insert(it1 -> second);
 				temp_SCG[it1 -> second -> id][it2 -> second -> id] = 1;
 				temp_SCG[it2 -> second -> id][it1 -> second -> id] = 1;
 			}
@@ -204,9 +210,10 @@ BotDiscover::convert_pivotalInteraction()
 }
 
 bool
-BotDiscover::degreeOneFilter(string node)
+BotDiscover::degreeOneFilter(const set<SCG_Node*>& neighbor)
 {
-	return (_anomalyList[node] -> in_list.size() + _anomalyList[node] -> out_list.size() > 1) ? false : true;
+
+	return (neighbor.size() + neighbor.size() > 1) ? false : true;
 }
 
 void
@@ -229,7 +236,7 @@ BotDiscover::newNode()
 }
 
 void
-BotDiscover::deleteNode(string ip, SCG_Node*& ptr)
+BotDiscover::deleteNode(SCG_Node*& ptr)
 {	
 	//for(size_t k = 0; k < _anomaly.size(); ++k){
 	//	for(auto& x: ptr -> out_list[k])
