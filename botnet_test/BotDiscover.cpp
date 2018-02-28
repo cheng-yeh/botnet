@@ -10,7 +10,6 @@
 #include "BotDiscover.h"
 
 using namespace std;
-using Eigen::MatrixXd;
 
 extern globalArg args;
 
@@ -37,6 +36,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 {
 	int count = 0;
 	map<string, double> total;
+	
 	// compute total interaction
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
@@ -55,7 +55,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		}
 	}
 	
-	// select pivots and create _anomalyList
+	// select pivots and create SCG_Node in _anomalyList
 	cout << "pivot:";
 	for(auto& x: total){
 		if(x.second / _anomalyNumber > tau){
@@ -69,7 +69,7 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 		}
 	}
 	
-	// compute totals with pivots
+	// create SCG_Node and compute interaction with pivots
 	for(size_t i = 0; i < _anomaly.size(); ++i){
 		if(_anomaly[i]){
 			for(size_t j = 0; j < timeList[i].size(); ++j){
@@ -85,26 +85,28 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 				}
 				
 				if(_anomalyList[ timeList[i][j][3] ] -> pivot){
-					(_anomalyList[ timeList[i][j][3] ] -> out_list)[i].insert(timeList[i][j][6]);
-					(_anomalyList[ timeList[i][j][6] ] -> in_list)[i].insert(timeList[i][j][3]);
+					//(_anomalyList[ timeList[i][j][3] ] -> out_list)[i].insert(timeList[i][j][6]);
+					//(_anomalyList[ timeList[i][j][6] ] -> in_list)[i].insert(timeList[i][j][3]);
 					++(_anomalyList[ timeList[i][j][3] ] -> interaction)[i];
 					++(_anomalyList[ timeList[i][j][6] ] -> interaction)[i];
 				}
 				if(_anomalyList[ timeList[i][j][6] ] -> pivot){
-					(_anomalyList[ timeList[i][j][6] ] -> out_list)[i].insert(timeList[i][j][3]);
-					(_anomalyList[ timeList[i][j][3] ] -> in_list)[i].insert(timeList[i][j][6]);
+					//(_anomalyList[ timeList[i][j][6] ] -> out_list)[i].insert(timeList[i][j][3]);
+					//(_anomalyList[ timeList[i][j][3] ] -> in_list)[i].insert(timeList[i][j][6]);
 					++(_anomalyList[ timeList[i][j][6] ] -> interaction)[i];
 					++(_anomalyList[ timeList[i][j][3] ] -> interaction)[i];
 				}
 			}
 		}
 	}
+	cout << "_anomalyList.size = " << _anomalyList.size();
+
 	// print pivots and their total interaction
 	for(auto& x: _anomalyList)
 		if(x.second -> pivot)
 			cout << x.first << ":" << mean(x.second -> interaction) << endl;
-	cout << "scg3\n";
-	cout << "_anomalyList.size = " << _anomalyList.size();
+	
+	// optional
 	// delete nodes with degree less or equal to one
 	vector<string> removed;
 	for(auto& x: _anomalyList){
@@ -127,8 +129,6 @@ BotDiscover::setSCG(const vector< vector< vector<string> > >& timeList, const do
 void
 BotDiscover::setSCG2(const double tau)
 {
-	cout << "_anomalyList.size() = " << _anomalyList.size() << endl;
-	cout << "SCGcheck\n";
 	size_t debug = 0;
 	vector< vector<double> > temp_SCG = vector< vector<double> >(_anomalyList.size(), vector<double>(_anomalyList.size(), 0));
 	vector<string> temp_ipList = vector<string>(_anomalyList.size(), "\0");
@@ -143,9 +143,8 @@ BotDiscover::setSCG2(const double tau)
 			++debug;
 			if(corelation_coefficient(it1 -> second -> interaction, it2 -> second -> interaction, it1 -> second -> total, it2 -> second -> total) > tau){
 				//++debug;
-				//if(debug % 10000 == 0)cout << "debug = " << debug;
-				//cout << corelation_coefficient(it1 -> first, it2 -> first) << endl;
-				//cout << it1 -> second -> id << "  " << it2 -> second -> id << " " << endl;
+				(it1 -> second -> out_list).insert(it2 -> second);
+				it2 -> second -> in_list.insert(it1 -> second);
 				temp_SCG[it1 -> second -> id][it2 -> second -> id] = 1;
 				temp_SCG[it2 -> second -> id][it1 -> second -> id] = 1;
 			}
@@ -187,24 +186,22 @@ BotDiscover::convert_pivotalInteraction()
 {
 	vector<double> pivotal = vector<double>(_ipList.size(), 0);
 	for(size_t i = 0; i < _ipList.size(); ++i){
-		for(size_t k = 0; k < _anomaly.size(); ++k){
-			if(_anomalyList[_ipList[i]] -> pivot){
-				for(auto& x: _anomalyList[_ipList[i]] -> out_list[k])
-					if(_anomalyList[x] -> pivot)
-						pivotal[i] += _anomalyList[x] -> total;
-				for(auto& x: _anomalyList[_ipList[i]] -> in_list[k])
-					if(_anomalyList[x] -> pivot)
-						pivotal[i] += _anomalyList[x] -> total;
+		if(_anomalyList[_ipList[i]] -> pivot){
+			for(auto& x: _anomalyList[_ipList[i]] -> out_list)
+				if(x -> pivot)
+					pivotal[i] += x -> total;
+			for(auto& x: _anomalyList[_ipList[i]] -> in_list)
+				if(x -> pivot)
+					pivotal[i] += x -> total;
+		}
+		else{
+			for(auto& x: _anomalyList[_ipList[i]] -> out_list){
+				pivotal[i] += x -> total;
 			}
-			else{
-				for(auto& x: _anomalyList[_ipList[i]] -> out_list[k]){
-					pivotal[i] += _anomalyList[x] -> total;
-				}
-				for(auto& x: _anomalyList[_ipList[i]] -> in_list[k]){
-					pivotal[i] += _anomalyList[x] -> total;
-				}
+			for(auto& x: _anomalyList[_ipList[i]] -> in_list){
+			pivotal[i] += x -> total;
 			}
-		}	
+		}
 	}
 	// normalization
 	double maxi = *max_element(pivotal.begin(), pivotal.end());
@@ -217,14 +214,7 @@ BotDiscover::convert_pivotalInteraction()
 bool
 BotDiscover::degreeOneFilter(string node)
 {
-	int count = 0;
-	const vector< set<string> >& in = _anomalyList[node] -> in_list;
-	const vector< set<string> >& out = _anomalyList[node] -> out_list;
-	for(size_t i = 0; i < in.size(); ++i){
-		count += in[i].size();
-		count += out[i].size();
-	} 
-	return (count > 2) ? false : true;
+	return (_anomalyList[node] -> in_list.size() + _anomalyList[node] -> out_list.size() > 1) ? false : true;
 }
 
 void
@@ -240,8 +230,8 @@ SCG_Node*
 BotDiscover::newNode()
 {
 	SCG_Node* ptr = new SCG_Node;
-	(ptr -> in_list).assign(_anomaly.size(), set<string>());
-	(ptr -> out_list).assign(_anomaly.size(), set<string>());
+	(ptr -> in_list) = set<SCG_Node*>();
+	(ptr -> out_list) = set<SCG_Node*>();
 	(ptr -> interaction).assign(args.windowNumber, 0);
 	return ptr;
 }
@@ -249,12 +239,12 @@ BotDiscover::newNode()
 void
 BotDiscover::deleteNode(string ip, SCG_Node*& ptr)
 {	
-	for(size_t k = 0; k < _anomaly.size(); ++k){
-		for(auto& x: ptr -> out_list[k])
-			_anomalyList[x] -> in_list[k].erase(ip);
-		for(auto& x: ptr -> in_list[k])
-			_anomalyList[x] -> out_list[k].erase(ip);
-	}			
+	//for(size_t k = 0; k < _anomaly.size(); ++k){
+	//	for(auto& x: ptr -> out_list[k])
+	//		_anomalyList[x] -> in_list[k].erase(ip);
+	//	for(auto& x: ptr -> in_list[k])
+	//		_anomalyList[x] -> out_list[k].erase(ip);
+	//}			
 	delete ptr;
 	ptr = 0;
 }

@@ -9,15 +9,11 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <unordered_set>
 #include <set>
-#include <Eigen/Dense>
 
 #include "util.h"
 
 using namespace std;
-using Eigen::MatrixXd;
-//using Eigen::VectorXd;
 
 
 class BotDiscover
@@ -47,9 +43,6 @@ private:
 	SCG_Node* newNode();
 	void deleteNode(string ip, SCG_Node*& ptr);
 
-	// 
-	//void boost(int a, const double tau);
-	
 	// statistic computation for SCGNode
 	double mean(const vector<double>& inter);
 	double deviation(const vector<double>& i, const double bar);
