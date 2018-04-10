@@ -1,4 +1,5 @@
 # botnet
+The development of this project will be suspended until June.
 ## Usage
 ```
 usage: ./botnet <--TotalList <fileName>> <--WindowNumber <window_number>>
