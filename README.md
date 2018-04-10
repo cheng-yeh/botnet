@@ -1,5 +1,10 @@
 # botnet
+This project is an implementation of the [essay](https://ieeexplore.ieee.org/document/7422020/authors):
+
+**Botnet Detection Based on Anomaly and Community Detection** by *Jing Wang* and *Ioannis Ch. Paschalidis*.
+
 The development of this project will be suspended until June.
+
 ## Usage
 ```
 usage: ./botnet <--TotalList <fileName>> <--WindowNumber <window_number>>
