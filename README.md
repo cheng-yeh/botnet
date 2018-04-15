@@ -5,8 +5,6 @@ This project is an implementation of the [essay](https://ieeexplore.ieee.org/doc
 
 I modify the last stage with [Combo](http://senseable.mit.edu/community_detection/), which may make the whole system more efficient without lost of performance.
 
-The development of this project will be suspended until June.
-
 ## Usage
 ```
 usage: ./botnet <--TotalList <fileName>> <--WindowNumber <window_number>>
@@ -34,3 +32,5 @@ optional arguments:
   --ScgTau <threshold>
                 Set the corelation coefficient threshold for SCG. Must be a positive double.
 ```
+## Progress
+The development of this project will be suspended until June.
