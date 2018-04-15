@@ -1,8 +1,8 @@
 # botnet
-This project is an implementation of the essay, [**Botnet Detection Based on Anomaly and Community Detection**](https://ieeexplore.ieee.org/document/7422020/authors), 
+* This project is an implementation of the essay, [**Botnet Detection Based on Anomaly and Community Detection**](https://ieeexplore.ieee.org/document/7422020/authors), 
  by *Jing Wang* and *Ioannis Ch. Paschalidis*.
 
-I modify the last stage with [Combo](http://senseable.mit.edu/community_detection/), which may make the whole system more efficient without lost of performance.
+* I modify the last stage with [Combo](http://senseable.mit.edu/community_detection/), which may make the whole system more efficient without lost of performance.
 
 ## Usage
 ```
