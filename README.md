@@ -3,6 +3,8 @@ This project is an implementation of the [essay](https://ieeexplore.ieee.org/doc
 
 **Botnet Detection Based on Anomaly and Community Detection** by *Jing Wang* and *Ioannis Ch. Paschalidis*.
 
+I modify the last stage with [Combo](http://senseable.mit.edu/community_detection/), which may make the whole system more efficient without lost of performance.
+
 The development of this project will be suspended until June.
 
 ## Usage
