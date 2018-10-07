@@ -25,7 +25,7 @@ public:
 	
 	// multiple writers
 	void GroundTruthWriter(const vector< vector<string> >& data, const vector<string>& bot, string& filename);
-	void SADWriter(const string& data, string& filename);
+	void SADPWriter(const vector< vector<double> > data, string& filename);
 	
 private:
 

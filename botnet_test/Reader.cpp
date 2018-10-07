@@ -26,19 +26,19 @@ Reader::ReadFromBinetflow(const std::string& fname)
 {
 	// read and parse from the file to a 2d vector of string
 	ifstream file(fname.c_str());
-	if(!file.is_open())
+	if(!file.is_open()){
+		cout << "Error! Cannot open file " << fname << endl;
 		return;
-	bool skip = true;
+	}
 	int length = -1;
 	char buff[512];
-	while(file.getline(buff, 512))
+	
+	// skip the first line
+	file.getline(buff, 512);
+	size_t maxline = 0;
+	while(file.getline(buff, 512) && maxline < 80000)
 	{
-		// skip the first line
-		if(skip){
-			skip = false;
-			continue;
-		}
-		
+		++maxline;
 		vector<string> data;
 		size_t pos = 0, end = -1;
 		string tok = "\0";
@@ -50,7 +50,7 @@ Reader::ReadFromBinetflow(const std::string& fname)
 			end = StrGetTok(buff, tok, pos, ',');
 		}
 		if(length == -1)length = data.size();
-		if(length != data.size()){
+		if(length != int(data.size())){
 			cerr << "Format Error!\n";
 			return;
 		}
@@ -59,10 +59,32 @@ Reader::ReadFromBinetflow(const std::string& fname)
 	file.close();
 }
 
+void
+Reader::ReadFromBotList(const std::string& fname)
+{
+	ifstream file(fname.c_str());
+	if(!file.is_open()){
+		cout << "Error! Cannot open file " << fname << endl;
+		return;
+	}
+	char buff[512];
+	while(file.getline(buff, 512))
+	{
+		string data = buff;
+		botlist.insert(data);
+	}
+}
+
 const vector< vector<string> >&
 Reader::getRawData() const
 {
 	return raw_data;
+}
+
+const set<string>&
+Reader::getBotList() const
+{
+	return botlist;
 }
 
 void
@@ -79,12 +101,10 @@ Reader::rawToTimelist(vector< vector< vector<string> > >& _timeList)
 	double window_size = delta / args.windowNumber;
 	
 	size_t j = 0;
-	for(size_t i = 0; i < args.windowNumber; ++i){
+	for(int i = 0; i < args.windowNumber; ++i){
 		vector< vector<string> > temp;
-
 		for(; j < raw_data.size(); ++j){
 			TimeKey key = TimeKey(raw_data[j][0]);
-
 			if(int( (key - begin) / window_size) == i){
 				temp.push_back(raw_data[j]);
 			}

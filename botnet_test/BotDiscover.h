@@ -9,15 +9,11 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <unordered_set>
 #include <set>
-#include <Eigen/Dense>
 
 #include "util.h"
 
 using namespace std;
-using Eigen::MatrixXd;
-//using Eigen::VectorXd;
 
 
 class BotDiscover
@@ -28,31 +24,35 @@ public:
 	~BotDiscover();
 	
 	// set function
-	void setSCG(const vector< vector< vector<string> > >& timeList, const double tau = 20);
-	//void rebuild();
-	void setSCG2(const double tau = 0.999);
+	void setSCG(const vector< vector< vector<string> > >& timeList, const double tau = 100);
+	void setSCG2(const double tau = 0.0);
 
+	// public get function
+	vector< vector<double> > get_SCG() const { return _SCG; }
+	vector<string> get_ipList() const { return _ipList; }
+	
+	// conversion for specific use
+	vector<double> convert_pivotalInteraction();
+	
 private:
-	bool degreeOneFilter(string node);
+	// filter
+	bool degreeOneFilter(const set<SCG_Node*>& neighbor);
 	void trimAnomalyList(vector<string>& removed);
+	
 	// node operation
 	SCG_Node* newNode();
 	void deleteNode(SCG_Node*& ptr);
+
 	// statistic computation for SCGNode
-	double mean(const string& i);
-	double deviation(const string& i);
-	double corelation_coefficient(const string& i, const string& j);
-	// statistic computation for map
-	//double mean(const string& i, const map<string, vector<double> > scg);
-	//double deviation(const string& i, const map<string, vector<double> > scg);
-	//double corelation_coefficient(const string& i, const string& j, const map<string, vector<double> > scg);
+	double mean(const vector<double>& inter);
+	double deviation(const vector<double>& i, const double bar);
+	double corelation_coefficient(const vector<double>& inter_i, const vector<double>& inter_j, const double bar_i, const double bar_j);
 
 private:
 	vector<bool> _anomaly;
 	int _anomalyNumber;
-	unordered_set<string> _pivot;
+	vector<string> _pivotList;
 	map<string, SCG_Node*> _anomalyList;
-	//map<string, SCG_Node*> _scgList;
-	//vector< vector<double> > _total_interaction;
-	MatrixXd _SCG;
+	vector< vector<double> > _SCG;
+	vector<string> _ipList;
 };
